@@ -1,6 +1,7 @@
 -- This is the panel that appears when "Manage Zones" is clicked
 
 require "HomeInventoryMain"
+require "HomeInventoryZoneUI"
 
 HomeInventoryZonePanel = ISCollapsableWindowJoypad:derive("HomeInventoryZonePanel");
 
@@ -169,7 +170,7 @@ function HomeInventoryZonePanel:onClick(button)
         end
     end
     if button.internal == "ADDZONE" then
-        local ui = AddHomeinventoryZoneUI:new(getPlayerScreenLeft(self.playerNum)+10, getPlayerScreenTop(self.playerNum)+10, 320, FONT_HGT_MEDIUM*8, self.player)
+        local ui = AddHomeInventoryZoneUI:new(getPlayerScreenLeft(self.playerNum)+10, getPlayerScreenTop(self.playerNum)+10, 320, FONT_HGT_MEDIUM*8, self.player)
         ui:initialise()
         ui:addToUIManager()
         ui.parentUI = self

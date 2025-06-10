@@ -1,4 +1,4 @@
--- This contains the zone manager, mainly to save the data
+-- This contains the zone manager (not the zone manager WINDOW), which handles all the data
 
 -- STRUCTURE OF ModData FOR THIS MOD:
 -- ModData
@@ -74,12 +74,6 @@ function HomeInventoryManager:getItemsInZone(zone)
             end
         end
     end
-
-    -- -- Debug
-    -- for _, item in pairs(items) do
-    --     print(item)
-    -- end
-
     return items
 end
 

@@ -2,10 +2,7 @@
 
 require "HomeInventoryMain"
 
--- _G.HomeInventoryZones = _G.HomeInventoryZones or {}
-
-
-AddHomeinventoryZoneUI = ISPanelJoypad:derive("AddHomeinventoryZoneUI");
+AddHomeInventoryZoneUI = ISPanelJoypad:derive("AddHomeInventoryZoneUI");
 
 local FONT_HGT_SMALL = getTextManager():getFontHeight(UIFont.NewSmall)
 local FONT_HGT_MEDIUM = getTextManager():getFontHeight(UIFont.NewMedium)
@@ -13,11 +10,11 @@ local UI_BORDER_SPACING = 10
 local BUTTON_HGT = FONT_HGT_SMALL + 6
 
 --************************************************************************--
---** AddHomeinventoryZoneUI:initialise
+--** AddHomeInventoryZoneUI:initialise
 --**
 --************************************************************************--
 
-function AddHomeinventoryZoneUI:initialise()
+function AddHomeInventoryZoneUI:initialise()
     self.parentUI = HomeInventoryZonePanel.instance
 
     ISPanelJoypad.initialise(self);
@@ -25,7 +22,7 @@ function AddHomeinventoryZoneUI:initialise()
 
     self.parentUI:setVisible(false);
 
-    self.buttonAdd = ISButton:new(UI_BORDER_SPACING, self:getHeight() - UI_BORDER_SPACING - BUTTON_HGT, btnWid, BUTTON_HGT, getText("IGUI_DesignationZone_SetPosition"), self, AddHomeinventoryZoneUI.onClick);
+    self.buttonAdd = ISButton:new(UI_BORDER_SPACING, self:getHeight() - UI_BORDER_SPACING - BUTTON_HGT, btnWid, BUTTON_HGT, getText("IGUI_DesignationZone_SetPosition"), self, AddHomeInventoryZoneUI.onClick);
     self.buttonAdd.internal = "ADD"
     self.buttonAdd.anchorTop = false
     self.buttonAdd.anchorBottom = true
@@ -33,7 +30,7 @@ function AddHomeinventoryZoneUI:initialise()
     self:addChild(self.buttonAdd)
     self.buttonAdd:setVisible(false)
 
-    self.cancel = ISButton:new(self:getWidth() - btnWid - UI_BORDER_SPACING, self:getHeight() - UI_BORDER_SPACING - BUTTON_HGT, btnWid, BUTTON_HGT, getText("UI_Cancel"), self, AddHomeinventoryZoneUI.onClick);
+    self.cancel = ISButton:new(self:getWidth() - btnWid - UI_BORDER_SPACING, self:getHeight() - UI_BORDER_SPACING - BUTTON_HGT, btnWid, BUTTON_HGT, getText("UI_Cancel"), self, AddHomeInventoryZoneUI.onClick);
     self.cancel.internal = "CANCEL";
     self.cancel.anchorTop = false
     self.cancel.anchorBottom = true
@@ -61,7 +58,7 @@ function AddHomeinventoryZoneUI:initialise()
 
 end
 
-function AddHomeinventoryZoneUI:onMouseDownOutside(x, y)
+function AddHomeInventoryZoneUI:onMouseDownOutside(x, y)
     if self.playerNum ~= 0 then return end
     if not self.drawTileMouse or self.startingX then return; end
     local sq = self:pickSquare(x + self:getAbsoluteX(), y + self:getAbsoluteY())
@@ -76,7 +73,7 @@ function AddHomeinventoryZoneUI:onMouseDownOutside(x, y)
     end
 end
 
-function AddHomeinventoryZoneUI:onMouseMoveOutside(dx, dy)
+function AddHomeInventoryZoneUI:onMouseMoveOutside(dx, dy)
     if self.playerNum ~= 0 then return end
     local sq = self:pickSquare(getMouseX(), getMouseY())
     if sq and self.drawTileMouse then
@@ -85,12 +82,12 @@ function AddHomeinventoryZoneUI:onMouseMoveOutside(dx, dy)
     end
 end
 
-function AddHomeinventoryZoneUI:onMouseUpOutside(x, y)
+function AddHomeInventoryZoneUI:onMouseUpOutside(x, y)
     if self.playerNum ~= 0 then return end
     self:askCreateZone()
 end
 
-function AddHomeinventoryZoneUI:askCreateZone()
+function AddHomeInventoryZoneUI:askCreateZone()
     if not self.drawTileMouse or not self.startingX or not self.startingY or not self.widthCorrect or not self.heightCorrect then
         self:undisplay();
         return;
@@ -98,8 +95,8 @@ function AddHomeinventoryZoneUI:askCreateZone()
     self.drawTileMouse = false;
     --self.cancel.enable = false;
     self.waitingConfirm = true;
-    -- local modal = ISModalDialog:new(0,0, 350, 150, getText("IGUI_DesignationZone_AddZone"), true, self, AddHomeinventoryZoneUI.onCreateZone);
-    local modal = ISModalDialog:new(0,0, 350, 150, "Add Home Zone", true, self, AddHomeinventoryZoneUI.onCreateZone);
+    -- local modal = ISModalDialog:new(0,0, 350, 150, getText("IGUI_DesignationZone_AddZone"), true, self, AddHomeInventoryZoneUI.onCreateZone);
+    local modal = ISModalDialog:new(0,0, 350, 150, "Add Home Zone", true, self, AddHomeInventoryZoneUI.onCreateZone);
     modal:initialise()
     modal:addToUIManager()
     modal.modal = self;
@@ -112,7 +109,7 @@ function AddHomeinventoryZoneUI:askCreateZone()
 --    self:addZone();
 end
 
-function AddHomeinventoryZoneUI:onCreateZone(button)
+function AddHomeInventoryZoneUI:onCreateZone(button)
     if button.internal == "YES" then
         self:addZone();
     else
@@ -122,7 +119,7 @@ function AddHomeinventoryZoneUI:onCreateZone(button)
     button.parent.modal.waitingConfirm = false;
 end
 
-function AddHomeinventoryZoneUI:addZone()
+function AddHomeInventoryZoneUI:addZone()
     ISWorldObjectContextMenu.disableWorldMenu = false;
 
     if not self.widthCorrect or not self.heightCorrect then
@@ -172,7 +169,6 @@ function AddHomeinventoryZoneUI:addZone()
         name = self.titleEntry.name or tostring(self.titleEntry:getName() or "HomeZone"),
         x1 = startX, y1 = startY, x2 = endX, y2 = endY, z = luautils.round(self.player:getZ(),0)
     }
-    -- table.insert(_G.HomeInventoryZones, zoneData)
     HomeInventoryManager:addZone(zoneData)
 
     print("Home Inventory Zone created:")
@@ -182,7 +178,7 @@ function AddHomeinventoryZoneUI:addZone()
     self:reset();
 end
 
-function AddHomeinventoryZoneUI:reset()
+function AddHomeInventoryZoneUI:reset()
     if not self.startingX or not self.startingY then return; end
     local startingX = self.startingX;
     local startingY = self.startingY;
@@ -223,7 +219,7 @@ function AddHomeinventoryZoneUI:reset()
     ISWorldObjectContextMenu.disableWorldMenu = false;
 end
 
-function AddHomeinventoryZoneUI:prerender()
+function AddHomeInventoryZoneUI:prerender()
     local z = UI_BORDER_SPACING+1;
     local splitPoint = getTextManager():MeasureStringX(UIFont.NewSmall, "") + UI_BORDER_SPACING*2;
     local x = UI_BORDER_SPACING+1;
@@ -309,7 +305,7 @@ function AddHomeinventoryZoneUI:prerender()
     self:updateButtons();
 end
 
-function AddHomeinventoryZoneUI:updateButtons()
+function AddHomeInventoryZoneUI:updateButtons()
 --    self.ok.enable = self.size > 1;
     if getJoypadData(self.playerNum) then
         self.buttonAdd:setVisible(true)
@@ -329,7 +325,7 @@ function AddHomeinventoryZoneUI:updateButtons()
     end
 end
 
-function AddHomeinventoryZoneUI:pickSquare(screenX, screenY)
+function AddHomeInventoryZoneUI:pickSquare(screenX, screenY)
     local playerIndex = self.playerNum
     local z = self.player:getCurrentSquare():getZ()
     local worldX = screenToIsoX(playerIndex, screenX, screenY, z)
@@ -337,7 +333,7 @@ function AddHomeinventoryZoneUI:pickSquare(screenX, screenY)
     return getCell():getGridSquare(worldX, worldY, z), worldX, worldY, z
 end
 
-function AddHomeinventoryZoneUI:highlightSquareAtMousePointer()
+function AddHomeInventoryZoneUI:highlightSquareAtMousePointer()
     if (self.playerNum ~= 0) or ((getJoypadData(self.playerNum) ~= nil) and not wasMouseActiveMoreRecentlyThanJoypad()) then return end
     local square,x,y,z = self:pickSquare(getMouseX(), getMouseY())
     local r,g,b,a = self.zoneColor.r, self.zoneColor.g, self.zoneColor.b, self.zoneColor.a
@@ -346,7 +342,7 @@ function AddHomeinventoryZoneUI:highlightSquareAtMousePointer()
     return
 end
 
-function AddHomeinventoryZoneUI:highlightSquareAtStartPosition()
+function AddHomeInventoryZoneUI:highlightSquareAtStartPosition()
     if (self.playerNum == 0) and ((getJoypadData(self.playerNum) == nil) or wasMouseActiveMoreRecentlyThanJoypad()) then return end
     local x,y,z = self.joypadWorldX,self.joypadWorldY,self.player:getZ()
     local r,g,b,a = self.zoneColor.r, self.zoneColor.g, self.zoneColor.b, self.zoneColor.a
@@ -355,7 +351,7 @@ function AddHomeinventoryZoneUI:highlightSquareAtStartPosition()
     return
 end
 
-function AddHomeinventoryZoneUI:undisplay()
+function AddHomeInventoryZoneUI:undisplay()
     self:reset()
     self:setVisible(false)
     self:removeFromUIManager()
@@ -365,7 +361,7 @@ function AddHomeinventoryZoneUI:undisplay()
     end
 end
 
-function AddHomeinventoryZoneUI:onClick(button)
+function AddHomeInventoryZoneUI:onClick(button)
     if button.internal == "ADD" then
         if self.startingX == nil then
             self.startingX = self.joypadWorldX
@@ -384,11 +380,11 @@ function AddHomeinventoryZoneUI:onClick(button)
     end
 end
 
-function AddHomeinventoryZoneUI:onZoneWithNameExists()
+function AddHomeInventoryZoneUI:onZoneWithNameExists()
     self:undisplay()
 end
 
-function AddHomeinventoryZoneUI:onGainJoypadFocus(joypadData)
+function AddHomeInventoryZoneUI:onGainJoypadFocus(joypadData)
     ISPanelJoypad.onGainJoypadFocus(self, joypadData)
     self:setISButtonForA(self.buttonAdd)
     self:setISButtonForB(self.cancel)
@@ -396,11 +392,11 @@ function AddHomeinventoryZoneUI:onGainJoypadFocus(joypadData)
     self.joypadWorldY = self.player:getCurrentSquare():getY()
 end
 
-function AddHomeinventoryZoneUI:onJoypadDown(button, joypadData)
+function AddHomeInventoryZoneUI:onJoypadDown(button, joypadData)
     ISPanelJoypad.onJoypadDown(self, button, joypadData)
 end
 
-function AddHomeinventoryZoneUI:onJoypadDirUp(joypadData)
+function AddHomeInventoryZoneUI:onJoypadDirUp(joypadData)
     if self.startingX == nil then
         self.joypadWorldY = self.joypadWorldY - 1
     else
@@ -408,7 +404,7 @@ function AddHomeinventoryZoneUI:onJoypadDirUp(joypadData)
     end
 end
 
-function AddHomeinventoryZoneUI:onJoypadDirDown(joypadData)
+function AddHomeInventoryZoneUI:onJoypadDirDown(joypadData)
     if self.startingX == nil then
         self.joypadWorldY = self.joypadWorldY + 1
     else
@@ -416,7 +412,7 @@ function AddHomeinventoryZoneUI:onJoypadDirDown(joypadData)
     end
 end
 
-function AddHomeinventoryZoneUI:onJoypadDirLeft(joypadData)
+function AddHomeInventoryZoneUI:onJoypadDirLeft(joypadData)
     if self.startingX == nil then
         self.joypadWorldX = self.joypadWorldX - 1
     else
@@ -424,7 +420,7 @@ function AddHomeinventoryZoneUI:onJoypadDirLeft(joypadData)
     end
 end
 
-function AddHomeinventoryZoneUI:onJoypadDirRight(joypadData)
+function AddHomeInventoryZoneUI:onJoypadDirRight(joypadData)
     if self.startingX == nil then
         self.joypadWorldX = self.joypadWorldX + 1
     else
@@ -433,10 +429,10 @@ function AddHomeinventoryZoneUI:onJoypadDirRight(joypadData)
 end
 
 --************************************************************************--
---** AddHomeinventoryZoneUI:new
+--** AddHomeInventoryZoneUI:new
 --**
 --************************************************************************--
-function AddHomeinventoryZoneUI:new(x, y, width, height, player)
+function AddHomeInventoryZoneUI:new(x, y, width, height, player)
     height = 1 + UI_BORDER_SPACING + FONT_HGT_MEDIUM + UI_BORDER_SPACING + FONT_HGT_SMALL * 2 + UI_BORDER_SPACING + FONT_HGT_SMALL * 3 + UI_BORDER_SPACING + BUTTON_HGT + UI_BORDER_SPACING+1
     local o = ISPanelJoypad.new(self, x, y, width, height);
     if y == 0 then
@@ -461,7 +457,7 @@ function AddHomeinventoryZoneUI:new(x, y, width, height, player)
     o.drawTileMouse = true;
 --    o.moveWithMouse = true;
     o.startRenderTile = false;
-    AddHomeinventoryZoneUI.instance = o;
+    AddHomeInventoryZoneUI.instance = o;
     o.buttonBorderColor = {r=0.7, g=0.7, b=0.7, a=0.5};
     player:setSeeDesignationZone(true);
     return o;

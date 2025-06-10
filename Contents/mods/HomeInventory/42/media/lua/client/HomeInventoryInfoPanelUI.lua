@@ -41,20 +41,20 @@ function ISCharacterInfoWindow:createChildren(...)
         local SEARCH_YEND   = SEARCH_Y + SEARCH_HEIGHT
 
         -- Scrolling list dimensions 
-        local HEADER_PADDING    = 20
-        local LIST_X            = 0 -- start at the panel border
-        local LIST_Y            = PADDING + SEARCH_Y + SEARCH_HEIGHT + HEADER_PADDING
-        local LIST_WIDTH        = FIXED_WIDTH -- end at the panel border (fill)
-        local LIST_HEIGHT       = FIXED_HEIGHT - 2 * PADDING - SEARCH_YEND - HEADER_PADDING
+        local HDR_PADDING   = 16 -- header padding
+        local LIST_X        = 0 -- start at the panel border
+        local LIST_Y        = PADDING + SEARCH_Y + SEARCH_HEIGHT + HDR_PADDING
+        local LIST_WIDTH    = FIXED_WIDTH -- end at the panel border (fill)
+        local LIST_HEIGHT   = FIXED_HEIGHT - 2 * PADDING - SEARCH_YEND - HDR_PADDING
 
         -- Columns
         local COL_NAME_X    = 10
         local COL_AMOUNT_X  = LIST_WIDTH - 210
-        local COL_ZONE_X    = LIST_WIDTH - 140
-        local COL_INSIDE_X  = LIST_WIDTH - 60
+        local COL_ZONE_X    = LIST_WIDTH - 180
+        local COL_INSIDE_X  = LIST_WIDTH - 100
 
         -- Rows
-        local ROW_HEIGHT = 16
+        local ROW_HEIGHT    = 16
     
         ----------------------------------------
         -- CREATE PANEL
@@ -78,7 +78,7 @@ function ISCharacterInfoWindow:createChildren(...)
 
             -- Header for the list
             self:drawText("Name",   COL_NAME_X,   self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
-            self:drawText("Amount", COL_AMOUNT_X, self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
+            self:drawText("", COL_AMOUNT_X, self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
             self:drawText("Zone",   COL_ZONE_X,   self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
             self:drawText("Inside", COL_INSIDE_X, self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
         end
@@ -113,22 +113,46 @@ function ISCharacterInfoWindow:createChildren(...)
         ----------------------------------------
         -- CREATE LIST (header in draw in panel's prerender above)
         ----------------------------------------
+        ---
         local itemList = ISScrollingListBox:new(LIST_X, LIST_Y, LIST_WIDTH, LIST_HEIGHT)
+        local COLUMN_PADDING = 5
+        local maxNameWidth = COL_AMOUNT_X - COL_NAME_X - COLUMN_PADDING
+        local maxZoneWidth = COL_INSIDE_X - COL_ZONE_X - COLUMN_PADDING
+        local maxInsideWidth = LIST_WIDTH - COL_ZONE_X - COLUMN_PADDING
         itemList:initialise()
         itemList:instantiate()
         itemList.itemheight = ROW_HEIGHT
         itemList.font = UIFont.Small
         itemList.doDrawItem = function(self, y, item, alt)
-            self:drawText(item.item.text,   COL_NAME_X,   y + 2, 1, 1, 1, 1, self.font)
-            self:drawText(tostring(item.item.amount), COL_AMOUNT_X, y + 2, 1, 1, 1, 1, self.font)
-            self:drawText(item.item.zone,   COL_ZONE_X,   y + 2, 1, 1, 1, 1, self.font)
-            self:drawText(item.item.inside, COL_INSIDE_X, y + 2, 1, 1, 1, 1, self.font)
+            local name = HomeInventoryInfoPanel.truncate(item.item.text, self.font, maxNameWidth)
+            local zone = HomeInventoryInfoPanel.truncate(item.item.zone, self.font, maxZoneWidth)
+            local amount = "x" .. tostring(item.item.amount)
+            local inside = HomeInventoryInfoPanel.truncate(item.item.inside, self.font, maxInsideWidth)
+
+            self:drawText(name, COL_NAME_X, y + 2, 1, 1, 1, 1, self.font)
+            self:drawText(amount, COL_AMOUNT_X, y + 2, 1, 1, 1, 1, self.font)
+            self:drawText(zone, COL_ZONE_X, y + 2, 1, 1, 1, 1, self.font)
+            self:drawText(inside, COL_INSIDE_X, y + 2, 1, 1, 1, 1, self.font)
             return y + ROW_HEIGHT
         end
         itemList.drawBorder = true
         itemList:setVisible(true)
         HomeInventoryInfoPanel:addChild(itemList)
         HomeInventoryInfoPanel.itemList = itemList
+
+        function HomeInventoryInfoPanel.truncate(text, font, maxWidth)
+            local tm = getTextManager()
+            if tm:MeasureStringX(font, text) <= maxWidth then
+                return text
+            end
+            local ellipsis = "..."
+            local ellipsisWidth = tm:MeasureStringX(font, ellipsis)
+            local truncated = text
+            while #truncated > 0 and tm:MeasureStringX(font, truncated) + ellipsisWidth > maxWidth do
+                truncated = truncated:sub(1, -2)
+            end
+            return truncated .. ellipsis
+        end
 
         ----------------------------------------
         -- MAIN LOGIC
