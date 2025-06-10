@@ -33,7 +33,7 @@ function ISCharacterInfoWindow:createChildren(...)
         local LIST_XSTART = 0 -- start at the panel border
         local LIST_YSTART = PADDING + BUTTON_YEND + HEADER_PADDING
         local LIST_WIDTH = FIXED_WIDTH -- end at the panel border
-        local LIST_HEIGHT = FIXED_HEIGHT - 2*PADDING - HEADER_PADDING - (BUTTON_HEIGHT - PADDING)
+        local LIST_HEIGHT = FIXED_HEIGHT - 2*PADDING - HEADER_PADDING - (BUTTON_HEIGHT + PADDING)
 
         -- Columns
         local COL_NAME_X    = 10
@@ -44,11 +44,12 @@ function ISCharacterInfoWindow:createChildren(...)
         -- Rows
         local ROW_HEIGHT = 16
 
-        local myPanel = ISPanel:new(0, 8, FIXED_WIDTH, FIXED_HEIGHT)
-        myPanel.backgroundColor = {r=0.1, g=0.1, b=0.1, a=0.8}
-        myPanel:initialise()
 
-        function myPanel:prerender()
+        local HomeInventoryInfoPanel = ISPanel:new(0, 8, FIXED_WIDTH, FIXED_HEIGHT)
+        HomeInventoryInfoPanel.backgroundColor = {r=0.1, g=0.1, b=0.1, a=0.8}
+        HomeInventoryInfoPanel:initialise()
+
+        function HomeInventoryInfoPanel:prerender()
             ISPanel.prerender(self)
             self:setWidth(FIXED_WIDTH)
             self:setHeight(FIXED_HEIGHT)
@@ -68,7 +69,7 @@ function ISCharacterInfoWindow:createChildren(...)
             self:drawText("Inside", COL_INSIDE_X, self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
         end
 
-        local manageButton = ISButton:new(PADDING, PADDING, BUTTON_WIDTH, BUTTON_HEIGHT, "Manage home zones", myPanel,
+        local manageButton = ISButton:new(PADDING, PADDING, BUTTON_WIDTH, BUTTON_HEIGHT, "Manage home zones", HomeInventoryInfoPanel,
             function(...)
                 if _G.HIOnManageButtonClick then
                     return _G.HIOnManageButtonClick(...)
@@ -76,11 +77,11 @@ function ISCharacterInfoWindow:createChildren(...)
             end
         )
         manageButton:initialise()
-        myPanel:addChild(manageButton)
+        HomeInventoryInfoPanel:addChild(manageButton)
 
         -- -- Temporary 
         -- local label = ISLabel:new(20, 50, 20, "Add a Home Inventory Zone to view items", 1, 1, 1, 1, UIFont.Medium, true)
-        -- myPanel:addChild(label)
+        -- HomeInventoryInfoPanel:addChild(label)
 
         -- Create a scrolling list box for items
         local itemList = ISScrollingListBox:new(LIST_XSTART, LIST_YSTART, LIST_WIDTH, LIST_HEIGHT)
@@ -97,12 +98,12 @@ function ISCharacterInfoWindow:createChildren(...)
         end
         itemList.drawBorder = true
         itemList:setVisible(true)
-        myPanel:addChild(itemList)
-        myPanel.itemList = itemList -- store for later access
+        HomeInventoryInfoPanel:addChild(itemList)
+        HomeInventoryInfoPanel.itemList = itemList
 
         -- Add the tab (the tab name is the label shown on the tab)
-        self.panel:addView("Home Inventory", myPanel)
-        self.homeInventoryTab = myPanel
+        self.panel:addView("Home Inventory", HomeInventoryInfoPanel)
+        self.homeInventoryTab = HomeInventoryInfoPanel
 
         self.panel.target = self.panel -- or any object you want as the first argument
         self.panel.onActivateView = function(target, tabPanel)
@@ -123,9 +124,9 @@ function ISCharacterInfoWindow:createChildren(...)
                         itemMap[key].amount = itemMap[key].amount + 1
                     end
                 end
-                myPanel.itemList:clear()
+                HomeInventoryInfoPanel.itemList:clear()
                 for _, v in pairs(itemMap) do
-                    myPanel.itemList:addItem(v.text, v)
+                    HomeInventoryInfoPanel.itemList:addItem(v.text, v)
                 end
             end
         end
