@@ -44,7 +44,9 @@ function ISCharacterInfoWindow:createChildren(...)
         -- Rows
         local ROW_HEIGHT = 16
 
-
+        ----------------------------------------
+        -- Create Panel
+        ----------------------------------------
         local HomeInventoryInfoPanel = ISPanel:new(0, 8, FIXED_WIDTH, FIXED_HEIGHT)
         HomeInventoryInfoPanel.backgroundColor = {r=0.1, g=0.1, b=0.1, a=0.8}
         HomeInventoryInfoPanel:initialise()
@@ -62,13 +64,16 @@ function ISCharacterInfoWindow:createChildren(...)
                 end
             end
 
-            -- Header
+            -- Header for the list
             self:drawText("Name",   COL_NAME_X,   self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
             self:drawText("Amount", COL_AMOUNT_X, self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
             self:drawText("Zone",   COL_ZONE_X,   self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
             self:drawText("Inside", COL_INSIDE_X, self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
         end
 
+        ----------------------------------------
+        -- Create button
+        ----------------------------------------
         local manageButton = ISButton:new(PADDING, PADDING, BUTTON_WIDTH, BUTTON_HEIGHT, "Manage home zones", HomeInventoryInfoPanel,
             function(...)
                 if _G.HIOnManageButtonClick then
@@ -83,7 +88,9 @@ function ISCharacterInfoWindow:createChildren(...)
         -- local label = ISLabel:new(20, 50, 20, "Add a Home Inventory Zone to view items", 1, 1, 1, 1, UIFont.Medium, true)
         -- HomeInventoryInfoPanel:addChild(label)
 
-        -- Create a scrolling list box for items
+        ----------------------------------------
+        -- Create list (table)
+        ----------------------------------------
         local itemList = ISScrollingListBox:new(LIST_XSTART, LIST_YSTART, LIST_WIDTH, LIST_HEIGHT)
         itemList:initialise()
         itemList:instantiate()
@@ -110,22 +117,9 @@ function ISCharacterInfoWindow:createChildren(...)
             local viewName = tabPanel.activeView.name
             if viewName == "Home Inventory" then
                 print("Home Inventory tab opened!")
-                -- Gather all items from all zones
-                local items = {}
-                local itemMap = {}
-                for _, zone in ipairs(HomeInventoryManager:getZones()) do
-                    for _, item in ipairs(HomeInventoryManager:getItemsInZone(zone)) do
-                        local name = item:getDisplayName()
-                        local container = item:getContainer() and item:getContainer():getType() or "Floor"
-                        local key = name .. "|" .. (zone.name or "Unknown") .. "|" .. container
-                        if not itemMap[key] then
-                            itemMap[key] = {text=name, amount=0, zone=zone.name or "Unknown", inside=container}
-                        end
-                        itemMap[key].amount = itemMap[key].amount + 1
-                    end
-                end
                 HomeInventoryInfoPanel.itemList:clear()
-                for _, v in pairs(itemMap) do
+                local itemtable = HomeInventoryManager:getAllItemInfo()
+                for _, v in ipairs(itemtable) do
                     HomeInventoryInfoPanel.itemList:addItem(v.text, v)
                 end
             end

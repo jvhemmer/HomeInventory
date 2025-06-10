@@ -83,19 +83,25 @@ function HomeInventoryManager:getItemsInZone(zone)
     return items
 end
 
--- function HomeInventoryManager:getItemsInAllZones()
---     local zones = HomeInventoryManager:getZones()
-
---     local items = {}
-
---     for i, zone in ipairs(zones) do
---         local itemsInZone = HomeInventoryManager:getItemsInZone(zone)
---         if itemsInZone then
---             table.insert(items, itemsInZone)
---         end
---     end
-
---     return items
--- end
+function HomeInventoryManager:getAllItemInfo()
+    local itemMap = {}
+    for _, zone in ipairs(self:getZones()) do
+        for _, item in ipairs(self:getItemsInZone(zone)) do
+            local name = item:getDisplayName()
+            local container = item:getContainer() and item:getContainer():getType() or "Floor"
+            local key = name .. "|" .. (zone.name or "Unknown") .. "|" .. container
+            if not itemMap[key] then
+                itemMap[key] = {text=name, amount=0, zone=zone.name or "Unknown", inside=container}
+            end
+            itemMap[key].amount = itemMap[key].amount + 1
+        end
+    end
+    -- Convert map to array for UI
+    local grouped = {}
+    for _, v in pairs(itemMap) do
+        table.insert(grouped, v)
+    end
+    return grouped
+end
 
 Events.OnInitWorld.Add(function() HomeInventoryManager:load() end)
