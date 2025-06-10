@@ -15,25 +15,37 @@ function ISCharacterInfoWindow:createChildren(...)
 
     -- Only add once, and only for the main player
     if self.playerNum == 0 and not self.homeInventoryTab then
+
+        ----------------------------------------
+        -- DIMENSIONS
+        ----------------------------------------
         local FIXED_WIDTH = 400
         local FIXED_HEIGHT = 600
 
         local PADDING = 10
 
         -- Button dimensions
-        local BUTTON_XSTART = PADDING
-        local BUTTON_YSTART = PADDING
-        local BUTTON_WIDTH = FIXED_WIDTH - 2*PADDING
+        local BUTTON_X      = PADDING
+        local BUTTON_Y      = PADDING
+        local BUTTON_WIDTH  = FIXED_WIDTH - 2*PADDING
         local BUTTON_HEIGHT = 30
-        local BUTTON_XEND = BUTTON_XSTART + BUTTON_WIDTH
-        local BUTTON_YEND = BUTTON_YSTART + BUTTON_HEIGHT
+        local BUTTON_XEND   = BUTTON_X + BUTTON_WIDTH
+        local BUTTON_YEND   = BUTTON_Y + BUTTON_HEIGHT
+
+        -- Search bar dimensions
+        local SEARCH_X      = PADDING
+        local SEARCH_Y      = BUTTON_YEND + PADDING
+        local SEARCH_WIDTH  = BUTTON_WIDTH
+        local SEARCH_HEIGHT = 22
+        local SEARCH_XEND   = SEARCH_X + SEARCH_WIDTH
+        local SEARCH_YEND   = SEARCH_Y + SEARCH_HEIGHT
 
         -- Scrolling list dimensions 
-        local HEADER_PADDING = 20
-        local LIST_XSTART = 0 -- start at the panel border
-        local LIST_YSTART = PADDING + BUTTON_YEND + HEADER_PADDING
-        local LIST_WIDTH = FIXED_WIDTH -- end at the panel border
-        local LIST_HEIGHT = FIXED_HEIGHT - 2*PADDING - HEADER_PADDING - (BUTTON_HEIGHT + PADDING)
+        local HEADER_PADDING    = 20
+        local LIST_X            = 0 -- start at the panel border
+        local LIST_Y            = PADDING + SEARCH_Y + SEARCH_HEIGHT + HEADER_PADDING
+        local LIST_WIDTH        = FIXED_WIDTH -- end at the panel border (fill)
+        local LIST_HEIGHT       = FIXED_HEIGHT - 2 * PADDING - SEARCH_YEND - HEADER_PADDING
 
         -- Columns
         local COL_NAME_X    = 10
@@ -43,9 +55,9 @@ function ISCharacterInfoWindow:createChildren(...)
 
         -- Rows
         local ROW_HEIGHT = 16
-
+    
         ----------------------------------------
-        -- Create Panel
+        -- CREATE PANEL
         ----------------------------------------
         local HomeInventoryInfoPanel = ISPanel:new(0, 8, FIXED_WIDTH, FIXED_HEIGHT)
         HomeInventoryInfoPanel.backgroundColor = {r=0.1, g=0.1, b=0.1, a=0.8}
@@ -72,7 +84,7 @@ function ISCharacterInfoWindow:createChildren(...)
         end
 
         ----------------------------------------
-        -- Create button
+        -- CREATE BUTTON
         ----------------------------------------
         local manageButton = ISButton:new(PADDING, PADDING, BUTTON_WIDTH, BUTTON_HEIGHT, "Manage home zones", HomeInventoryInfoPanel,
             function(...)
@@ -84,14 +96,24 @@ function ISCharacterInfoWindow:createChildren(...)
         manageButton:initialise()
         HomeInventoryInfoPanel:addChild(manageButton)
 
-        -- -- Temporary 
-        -- local label = ISLabel:new(20, 50, 20, "Add a Home Inventory Zone to view items", 1, 1, 1, 1, UIFont.Medium, true)
-        -- HomeInventoryInfoPanel:addChild(label)
+        ----------------------------------------
+        -- CREATE SEARCH BAR
+        ----------------------------------------
+        local searchBar = ISTextEntryBox:new("", SEARCH_X, SEARCH_Y, SEARCH_WIDTH, SEARCH_HEIGHT)
+        searchBar:initialise()
+        searchBar:instantiate()
+        searchBar:setClearButton(true)
+        HomeInventoryInfoPanel:addChild(searchBar)
+        HomeInventoryInfoPanel.searchBar = searchBar
+
+        -- Adjust list position to be below the search bar
+        -- local LIST_Y = SEARCH_Y + SEARCH_HEIGHT + PADDING
+        -- local LIST_HEIGHT = FIXED_HEIGHT - LIST_Y - PADDING
 
         ----------------------------------------
-        -- Create list (table)
+        -- CREATE LIST (header in draw in panel's prerender above)
         ----------------------------------------
-        local itemList = ISScrollingListBox:new(LIST_XSTART, LIST_YSTART, LIST_WIDTH, LIST_HEIGHT)
+        local itemList = ISScrollingListBox:new(LIST_X, LIST_Y, LIST_WIDTH, LIST_HEIGHT)
         itemList:initialise()
         itemList:instantiate()
         itemList.itemheight = ROW_HEIGHT
@@ -108,6 +130,27 @@ function ISCharacterInfoWindow:createChildren(...)
         HomeInventoryInfoPanel:addChild(itemList)
         HomeInventoryInfoPanel.itemList = itemList
 
+        ----------------------------------------
+        -- MAIN LOGIC
+        ----------------------------------------
+        HomeInventoryInfoPanel.allItems = {}
+
+        -- Filtering function
+        function HomeInventoryInfoPanel:filterItems()
+            local filter = self.searchBar:getText():lower()
+            self.itemList:clear()
+            for _, v in ipairs(self.allItems) do
+                if filter == "" or v.text:lower():find(filter, 1, true) then
+                    self.itemList:addItem(v.text, v)
+                end
+            end
+        end
+
+        -- Update filter on text change
+        searchBar.onTextChange = function()
+            HomeInventoryInfoPanel:filterItems()
+        end
+
         -- Add the tab (the tab name is the label shown on the tab)
         self.panel:addView("Home Inventory", HomeInventoryInfoPanel)
         self.homeInventoryTab = HomeInventoryInfoPanel
@@ -119,9 +162,8 @@ function ISCharacterInfoWindow:createChildren(...)
                 print("Home Inventory tab opened!")
                 HomeInventoryInfoPanel.itemList:clear()
                 local itemtable = HomeInventoryManager:getAllItemInfo()
-                for _, v in ipairs(itemtable) do
-                    HomeInventoryInfoPanel.itemList:addItem(v.text, v)
-                end
+                HomeInventoryInfoPanel.allItems = itemtable
+                HomeInventoryInfoPanel:filterItems()
             end
         end
     end
