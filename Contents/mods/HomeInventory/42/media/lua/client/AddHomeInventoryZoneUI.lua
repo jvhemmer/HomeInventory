@@ -1,6 +1,6 @@
 -- This handles the zone drawing and the popups associated with it, but not the Zone Manager window.
 
-require "HomeInventoryMain"
+require "HomeInventoryManager"
 require "HomeInventoryInfoPanelUI"
 
 AddHomeInventoryZoneUI = ISPanelJoypad:derive("AddHomeInventoryZoneUI");
@@ -41,12 +41,12 @@ function AddHomeInventoryZoneUI:initialise()
     self:addChild(self.cancel);
 
     local zoneid = #HomeInventoryManager:getAllZones() + 1;
-    local title =  "Zone " .. zoneid;
+    local title =  getText("UI_HomeInventory_Zone") .. " " .. zoneid;
     local found = false;
     while not found do
         if HomeInventoryManager:getZoneByName(title) then
             zoneid = zoneid + 1;
-            title = "Zone " .. zoneid;
+            title = getText("UI_HomeInventory_Zone") .. " " .. zoneid;
         else
             break;
         end
@@ -97,7 +97,7 @@ function AddHomeInventoryZoneUI:askCreateZone()
     --self.cancel.enable = false;
     self.waitingConfirm = true;
     -- local modal = ISModalDialog:new(0,0, 350, 150, getText("IGUI_DesignationZone_AddZone"), true, self, AddHomeInventoryZoneUI.onCreateZone);
-    local modal = ISModalDialog:new(0,0, 350, 150, "Add Home Zone", true, self, AddHomeInventoryZoneUI.onCreateZone);
+    local modal = ISModalDialog:new(0,0, 350, 150, getText("UI_HomeInventory_ZoneAddTitle"), true, self, AddHomeInventoryZoneUI.onCreateZone);
     modal:initialise()
     modal:addToUIManager()
     modal.modal = self;
@@ -167,16 +167,16 @@ function AddHomeInventoryZoneUI:addZone()
         startY = startY + 1;
     end
 
-    -- Create your zone data (not using DesignationZoneAnimal)
+    -- Create zone data
     local zoneData = {
         name = self.titleEntry.name or tostring(self.titleEntry:getName() or "HomeZone"),
         x1 = startX, y1 = startY, x2 = endX, y2 = endY, z = luautils.round(self.player:getZ(),0)
     }
     HomeInventoryManager:addZone(zoneData)
 
-    print("Home Inventory Zone created:")
-    print("Name: " .. tostring(zoneData.name))
-    print("Coords: x1=" .. startX .. ", y1=" .. startY .. ", x2=" .. endX .. ", y2=" .. endY .. ", z=" .. zoneData.z)
+    -- print("Home Inventory Zone created:")
+    -- print("Name: " .. tostring(zoneData.name))
+    -- print("Coords: x1=" .. startX .. ", y1=" .. startY .. ", x2=" .. endX .. ", y2=" .. endY .. ", z=" .. zoneData.z)
 
     self:reset();
 end
@@ -225,8 +225,8 @@ end
 function AddHomeInventoryZoneUI:prerender()
     local z = UI_BORDER_SPACING+1;
 
-    local zoneNameLabelText = "Zone name: "
-    local addZonePopupTitle = "Add Home Zone"
+    local zoneNameLabelText = getText("UI_HomeInventory_ZoneName")
+    local addZonePopupTitle = getText("UI_HomeInventory_ZoneAddTitle")
 
     local splitPoint = getTextManager():MeasureStringX(UIFont.NewSmall, zoneNameLabelText) + UI_BORDER_SPACING*2;
     local x = UI_BORDER_SPACING+1;
@@ -244,7 +244,7 @@ function AddHomeInventoryZoneUI:prerender()
     self.titleEntry:setX(splitPoint);
     z = z + FONT_HGT_SMALL;
 
-    local howTo = "Click and drag to designate your home zone."
+    local howTo = getText("UI_HomeInventory_ZoneAddHowTo")
  
     self:drawText(howTo, x, z + 2,1,1,1,1,UIFont.Small);
     self:setWidth(math.max(self.width, UI_BORDER_SPACING*2 + 2 +getTextManager():MeasureStringX(UIFont.Small, howTo)))

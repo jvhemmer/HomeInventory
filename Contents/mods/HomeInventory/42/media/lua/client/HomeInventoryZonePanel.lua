@@ -1,6 +1,6 @@
 -- This is the panel that appears when "Manage Zones" is clicked
 
-require "HomeInventoryMain"
+require "HomeInventoryManager"
 require "HomeInventoryZoneUI"
 require "HomeInventoryInfoPanelUI"
 
@@ -14,9 +14,16 @@ local BUTTON_HGT = FONT_HGT_SMALL + 6
 function HomeInventoryZonePanel:initialise()
     local btnWid = 150
 
+    self.descriptionText = getText("UI_HomeInventory_ZoneManagerDesc")
+
+    local descriptionWidth = getTextManager():MeasureStringX(UIFont.Small, self.descriptionText)
+
+    self.zoneUpdateText = getTextManager():WrapText(UIFont.Small, getText("UI_HomeInventory_ZoneUpdateHint"), self:getWidth()/2)
+    local zoneUpdateWidth = getTextManager():MeasureStringX(UIFont.Small, self.zoneUpdateText)
+
     local width = UI_BORDER_SPACING*2 + 2 + math.max(
-        getTextManager():MeasureStringX(UIFont.Small, "Home zones are used to mark your base area."),
-        getTextManager():MeasureStringX(UIFont.Small, "You can add, remove, or rename home zones.")
+        descriptionWidth,
+        zoneUpdateWidth
     )
     self:setWidth(math.max(width, self.width))
 
@@ -31,14 +38,14 @@ function HomeInventoryZonePanel:initialise()
     self.zoneList.drawBorder = true
     self:addChild(self.zoneList)
 
-    self.addZone = ISButton:new(self.zoneList.x, self.zoneList.y + self.zoneList.height + UI_BORDER_SPACING, btnWid, BUTTON_HGT, "Add Home Zone", self, HomeInventoryZonePanel.onClick)
+    self.addZone = ISButton:new(self.zoneList.x, self.zoneList.y + self.zoneList.height + UI_BORDER_SPACING, btnWid, BUTTON_HGT, getText("UI_HomeInventory_ZoneAddButton"), self, HomeInventoryZonePanel.onClick)
     self.addZone.internal = "ADDZONE"
     self.addZone:initialise()
     self.addZone:instantiate()
     self.addZone.borderColor = self.buttonBorderColor
     self:addChild(self.addZone)
 
-    self.removeZone = ISButton:new(self.width - 1 - btnWid - UI_BORDER_SPACING, self.addZone.y, btnWid, BUTTON_HGT, "Remove", self, HomeInventoryZonePanel.onClick)
+    self.removeZone = ISButton:new(self.width - 1 - btnWid - UI_BORDER_SPACING, self.addZone.y, btnWid, BUTTON_HGT, getText("UI_HomeInventory_ZoneRemoveButton"), self, HomeInventoryZonePanel.onClick)
     self.removeZone.internal = "REMOVEZONE"
     self.removeZone:initialise()
     self.removeZone:instantiate()
@@ -46,7 +53,7 @@ function HomeInventoryZonePanel:initialise()
     self:addChild(self.removeZone)
     self.removeZone.enable = false
 
-    self.renameZone = ISButton:new(self.removeZone.x - btnWid - UI_BORDER_SPACING, self.addZone.y, btnWid, BUTTON_HGT, "Rename", self, HomeInventoryZonePanel.onClick)
+    self.renameZone = ISButton:new(self.removeZone.x - btnWid - UI_BORDER_SPACING, self.addZone.y, btnWid, BUTTON_HGT, getText("UI_HomeInventory_ZoneRenameButton"), self, HomeInventoryZonePanel.onClick)
     self.renameZone.internal = "RENAMEZONE"
     self.renameZone:initialise()
     self.renameZone:instantiate()
@@ -54,7 +61,7 @@ function HomeInventoryZonePanel:initialise()
     self:addChild(self.renameZone)
     self.renameZone.enable = false
 
-    self.closeButton = ISButton:new(self.removeZone.x, self.addZone:getBottom() + BUTTON_HGT*2, btnWid, BUTTON_HGT, "Close", self, HomeInventoryZonePanel.onClick)
+    self.closeButton = ISButton:new(self.removeZone.x, self.addZone:getBottom() + BUTTON_HGT*2, btnWid, BUTTON_HGT, getText("UI_HomeInventory_CloseButton"), self, HomeInventoryZonePanel.onClick)
     self.closeButton.internal = "OK"
     self.closeButton:initialise()
     self.closeButton:instantiate()
@@ -119,9 +126,14 @@ function HomeInventoryZonePanel:drawList(y, item, alt)
         self.currentWidth = newWidth
     end
 
-    self:drawText("Size: " .. item.item.size, self.currentWidth + 20, y + 2, 1, 1, 1, a, self.font)
+    local sizeString = string.format(getText("UI_HomeInventory_ZoneSize"), item.item.size)
+    self:drawText(sizeString, self.currentWidth + 20, y + 2, 1, 1, 1, a, self.font)
+
     -- Draw Loaded column
-    local loadedText = item.item.loaded and "Updated*" or "Not updated* (showing cached inventory)"
+    local updatedText = getText("UI_HomeInventory_ZoneManagerUpdated")
+    local notUpdatedText = getText("UI_HomeInventory_ZoneManagerNotUpdated")
+
+    local loadedText = item.item.loaded and updatedText or notUpdatedText
     self:drawText(loadedText, self.currentWidth + 120, y + 2, 1, 1, 1, a, self.font)
 
     return y + self.itemheight
@@ -151,10 +163,12 @@ function HomeInventoryZonePanel:render()
         self.selectedZone = nil
     end
 
+    -- Text definitions in initialise()
     local BHC = getCore():getBadHighlitedColor()
-    self:drawText("Home zones are used to mark one or more areas of your base; or even your entire base.", self.addZone.x, self.addZone.y + BUTTON_HGT + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
-    self:drawText("*If you are too far from a zone, its inventory will only be ", self.addZone.x, self.addZone.y + BUTTON_HGT*2 + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
-    self:drawText("  updated when you return.", self.addZone.x, self.addZone.y + BUTTON_HGT*3, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
+    self:drawText(self.descriptionText, self.addZone.x, self.addZone.y + BUTTON_HGT + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
+    self:drawText("*", self.addZone.x, self.addZone.y + BUTTON_HGT*2 + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
+    self:drawText(self.zoneUpdateText, self.addZone.x + getTextManager():MeasureStringX(UIFont.Small, "*"), self.addZone.y + BUTTON_HGT*2 + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
+    -- self:drawText("  updated when you return.", self.addZone.x, self.addZone.y + BUTTON_HGT*3, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
 end
 
 function HomeInventoryZonePanel:onClick(button)
@@ -163,7 +177,8 @@ function HomeInventoryZonePanel:onClick(button)
     end
     if button.internal == "REMOVEZONE" then
         if self.selectedZone then
-            local modal = ISModalDialog:new(0,0, 350, 150, "Remove zone '" .. self.selectedZone.name .. "'?", true, nil, HomeInventoryZonePanel.onRemoveZone)
+            local removeText = string.format(getText("UI_HomeInventory_ZoneRemove"), self.selectedZone.name)
+            local modal = ISModalDialog:new(0,0, 350, 150, removeText, true, nil, HomeInventoryZonePanel.onRemoveZone)
             modal:initialise()
             modal:addToUIManager()
             modal.ui = self
@@ -173,7 +188,8 @@ function HomeInventoryZonePanel:onClick(button)
     end
     if button.internal == "RENAMEZONE" then
         if self.selectedZone then
-            local modal = ISTextBox:new(0, 0, 280, 180, "Rename zone", self.selectedZone.name, self, HomeInventoryZonePanel.onRenameZoneClick)
+            local renameText = string.format(getText("UI_HomeInventory_ZoneRename"), self.selectedZone.name)
+            local modal = ISTextBox:new(0, 0, 280, 180, renameText, self.selectedZone.name, self, HomeInventoryZonePanel.onRenameZoneClick)
             modal:initialise()
             modal:addToUIManager()
             modal.maxChars = 30
@@ -240,6 +256,6 @@ function HomeInventoryZonePanel:new(x, y, width, height, player)
     HomeInventoryZonePanel.instance = o
     o.buttonBorderColor = {r=0.7, g=0.7, b=0.7, a=0.5}
     o.listTakesFocus = false
-    o:setTitle("Home Inventory Zones")
+    o:setTitle(getText("UI_HomeInventory_HomeInventoryTitle"))
     return o
 end

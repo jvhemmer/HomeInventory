@@ -1,6 +1,6 @@
 -- This is the Main tab that appears in the Character Info screen, after the Temperature tab
 
-require "HomeInventoryMain"
+require "HomeInventoryManager"
 require "XpSystem/ISUI/ISCharacterInfoWindow"
 require "AddHomeInventoryZoneUI"
 
@@ -86,16 +86,16 @@ function ISCharacterInfoWindow:createChildren(...)
             end
 
             -- Header for the list
-            self:drawText("Name",   COL_NAME_X,   self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
+            self:drawText(getText("UI_HomeInventory_TableName"),   COL_NAME_X,   self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
             self:drawText("", COL_AMOUNT_X, self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
-            self:drawText("Zone",   COL_ZONE_X,   self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
-            self:drawText("Inside", COL_INSIDE_X, self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
+            self:drawText(getText("UI_HomeInventory_TableZone"),   COL_ZONE_X,   self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
+            self:drawText(getText("UI_HomeInventory_TableInside"), COL_INSIDE_X, self.itemList.y - ROW_HEIGHT, 1, 1, 1, 1, UIFont.Small)
         end
 
         ----------------------------------------
         -- CREATE MANAGE BUTTON
         ----------------------------------------
-        local manageButton = ISButton:new(BUTTON_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, "Manage home zones", HomeInventoryInfoPanel,
+        local manageButton = ISButton:new(BUTTON_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, getText("UI_HomeInventory_ManageZonesButton"), HomeInventoryInfoPanel,
             function(...)
                 if _G.HIOnManageButtonClick then
                     return _G.HIOnManageButtonClick(...)
@@ -203,7 +203,8 @@ function ISCharacterInfoWindow:createChildren(...)
         end
 
         -- Add the tab (the tab name is the label shown on the tab)
-        self.panel:addView("Home Inventory", HomeInventoryInfoPanel)
+        local tabName = getText("UI_HomeInventory_TabName")
+        self.panel:addView(tabName, HomeInventoryInfoPanel)
         self.homeInventoryTab = HomeInventoryInfoPanel
 
         self.panel.target = self.panel
@@ -216,7 +217,7 @@ function ISCharacterInfoWindow:createChildren(...)
 
             local viewName = tabPanel.activeView.name
 
-            if viewName == "Home Inventory" then -- only recalculate if it's the correct tab
+            if viewName == tabName then -- only recalculate if it's the correct tab
                 HomeInventoryInfoPanel:populateList()
             end
         end
@@ -224,7 +225,7 @@ function ISCharacterInfoWindow:createChildren(...)
         function HomeInventoryInfoPanel:populateList(force)
             local force = force or false
 
-            print("Refreshing items.")
+            -- print("Refreshing items.")
 
             self.itemList:clear()
             local itemtable = HomeInventoryManager:getAllItemInfo()

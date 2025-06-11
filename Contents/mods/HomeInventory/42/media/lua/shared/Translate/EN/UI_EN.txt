@@ -1,0 +1,29 @@
+UI_EN = 
+{
+    -- HomeInventoryInfopanelUI.lua
+    UI_HomeInventory_TableName = "Name",
+    UI_HomeInventory_TableZone = "Zone",
+    UI_HomeInventory_TableInside = "Inside",
+    UI_HomeInventory_ManageZonesButton = "Manage home zones",
+    UI_HomeInventory_TabName = "Home Inventory",
+
+    -- AddHomeInventoryZoneUI.lua
+    UI_HomeInventory_ZoneManagerDesc = "Home zones are used to mark your base(s), or areas within your base.",
+    UI_HomeInventory_ZoneUpdateHint = "If you are too far from a zone, its inventory will only be updated when you return.",
+    UI_HomeInventory_ZoneManagerUpdated = "Updated*",
+    UI_HomeInventory_ZoneManagerNotUpdated = "Not updated* (showing cached inventory)",
+    UI_HomeInventory_Zone = "Zone",
+    UI_HomeInventory_ZoneAddTitle = "Add Home Zone",
+    UI_HomeInventory_ZoneName = "Zone name: ",
+    UI_HomeInventory_ZoneAddHowTo = "Click and drag to designate your home zone.",
+    UI_HomeInventory_ZoneSize = "Size: %d",
+
+    -- HomeInventoryZonePanel.lua
+    UI_HomeInventory_ZoneAddButton = "Add Home Zone",
+    UI_HomeInventory_ZoneRenameButton = "Rename",
+    UI_HomeInventory_ZoneRemoveButton = "Remove",
+    UI_HomeInventory_CloseButton = "Close",
+    UI_HomeInventory_HomeInventoryTitle = "Home Inventory Zones",
+    UI_HomeInventory_ZoneRemove = "Remove zone '%s'?",
+    UI_HomeInventory_ZoneRename = "Rename zone '%s'",
+}
