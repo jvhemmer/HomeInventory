@@ -24,18 +24,27 @@ function ISCharacterInfoWindow:createChildren(...)
 
         local PADDING = 10
 
-        -- Button dimensions
+        -- Manage button dimensions
         local BUTTON_X      = PADDING
         local BUTTON_Y      = PADDING
+        -- local BUTTON_WIDTH  = FIXED_WIDTH - 2*PADDING - (30 + PADDING) -- last term is due to the refresh button
         local BUTTON_WIDTH  = FIXED_WIDTH - 2*PADDING
         local BUTTON_HEIGHT = 30
         local BUTTON_XEND   = BUTTON_X + BUTTON_WIDTH
         local BUTTON_YEND   = BUTTON_Y + BUTTON_HEIGHT
 
+        -- Refresh button dimensions
+        -- local REFRESH_X         = BUTTON_XEND + PADDING
+        -- local REFRESH_Y         = PADDING
+        -- local REFRESH_WIDTH     = BUTTON_HEIGHT
+        -- local REFRESH_HEIGHT    = BUTTON_HEIGHT
+        -- local REFRESH_XEND      = REFRESH_X + REFRESH_WIDTH
+        -- local REFRESH_YEND      = REFRESH_Y + REFRESH_HEIGHT
+
         -- Search bar dimensions
         local SEARCH_X      = PADDING
         local SEARCH_Y      = BUTTON_YEND + PADDING
-        local SEARCH_WIDTH  = BUTTON_WIDTH
+        local SEARCH_WIDTH  = FIXED_WIDTH - 2*PADDING
         local SEARCH_HEIGHT = 22
         local SEARCH_XEND   = SEARCH_X + SEARCH_WIDTH
         local SEARCH_YEND   = SEARCH_Y + SEARCH_HEIGHT
@@ -84,9 +93,9 @@ function ISCharacterInfoWindow:createChildren(...)
         end
 
         ----------------------------------------
-        -- CREATE BUTTON
+        -- CREATE MANAGE BUTTON
         ----------------------------------------
-        local manageButton = ISButton:new(PADDING, PADDING, BUTTON_WIDTH, BUTTON_HEIGHT, "Manage home zones", HomeInventoryInfoPanel,
+        local manageButton = ISButton:new(BUTTON_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, "Manage home zones", HomeInventoryInfoPanel,
             function(...)
                 if _G.HIOnManageButtonClick then
                     return _G.HIOnManageButtonClick(...)
@@ -95,6 +104,24 @@ function ISCharacterInfoWindow:createChildren(...)
         )
         manageButton:initialise()
         HomeInventoryInfoPanel:addChild(manageButton)
+
+        ----------------------------------------
+        -- CREATE REFRESH BUTTON
+        ----------------------------------------
+        -- local refreshTex = getTexture("media/textures/HomeInventory_Refresh.png") 
+
+        -- local refreshButton = ISButton:new(REFRESH_X, REFRESH_Y, REFRESH_WIDTH, REFRESH_HEIGHT, "", HomeInventoryInfoPanel,
+        --     function()
+        --         HomeInventoryInfoPanel:onRefreshClicked()
+        --     end
+        --     )
+        -- refreshButton:setImage(refreshTex)
+        -- refreshButton.borderColor = {r=0, g=0, b=0, a=0} -- optional: set border color
+        -- refreshButton.backgroundColor = {r=0, g=0, b=0, a=0}      -- optional: transparent background
+        -- refreshButton.backgroundColorMouseOver = {r=0, g=0, b=0, a=0} -- optional: mouse over color
+
+        -- refreshButton:initialise()
+        -- HomeInventoryInfoPanel:addChild(refreshButton)
 
         ----------------------------------------
         -- CREATE SEARCH BAR
@@ -179,16 +206,30 @@ function ISCharacterInfoWindow:createChildren(...)
         self.panel:addView("Home Inventory", HomeInventoryInfoPanel)
         self.homeInventoryTab = HomeInventoryInfoPanel
 
-        self.panel.target = self.panel -- or any object you want as the first argument
+        self.panel.target = self.panel
+
+        local old_onActivateView = self.panel.onActivateView
         self.panel.onActivateView = function(target, tabPanel)
-            local viewName = tabPanel.activeView.name
-            if viewName == "Home Inventory" then
-                print("Home Inventory tab opened!")
-                HomeInventoryInfoPanel.itemList:clear()
-                local itemtable = HomeInventoryManager:getAllItemInfo()
-                HomeInventoryInfoPanel.allItems = itemtable
-                HomeInventoryInfoPanel:filterItems()
+            if old_onActivateView then
+                old_onActivateView(target, tabPanel)
             end
+
+            local viewName = tabPanel.activeView.name
+
+            if viewName == "Home Inventory" then -- only recalculate if it's the correct tab
+                HomeInventoryInfoPanel:populateList()
+            end
+        end
+
+        function HomeInventoryInfoPanel:populateList(force)
+            local force = force or false
+
+            print("Refreshing items.")
+
+            self.itemList:clear()
+            local itemtable = HomeInventoryManager:getAllItemInfo()
+            self.allItems = itemtable
+            self:filterItems()
         end
     end
 
@@ -199,7 +240,6 @@ end
 function HIOnManageButtonClick()
 
     if not HomeInventoryZonePanel.instance or not HomeInventoryZonePanel.instance:getIsVisible() then
-        print("View!")
         local playerObj = getPlayer()
         local playerNum = playerObj:getPlayerNum()
         local ui = HomeInventoryZonePanel:new(
@@ -212,7 +252,6 @@ function HIOnManageButtonClick()
         ui:initialise()
         ui:addToUIManager()
     else
-        print("Already open!")
         HomeInventoryZonePanel.instance:setVisible(true)
         HomeInventoryZonePanel.instance:bringToTop()
     end

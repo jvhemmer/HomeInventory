@@ -2,6 +2,7 @@
 
 require "HomeInventoryMain"
 require "HomeInventoryZoneUI"
+require "HomeInventoryInfoPanelUI"
 
 HomeInventoryZonePanel = ISCollapsableWindowJoypad:derive("HomeInventoryZonePanel");
 
@@ -82,7 +83,7 @@ end
 function HomeInventoryZonePanel:populateList()
     self.zoneList:clear()
 
-    local zones = HomeInventoryManager:getZones()
+    local zones = HomeInventoryManager:getAllZones()
 
     for i, zone in ipairs(zones or {}) do
         local newZone = {}
@@ -196,6 +197,7 @@ function HomeInventoryZonePanel:onRemoveZone(button)
     if button.internal == "YES" then
         HomeInventoryManager:removeZone(zone)
         button.parent.ui:populateList()
+        HomeInventoryManager:refresh()
     end
 end
 

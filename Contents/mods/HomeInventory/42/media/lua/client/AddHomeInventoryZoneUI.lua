@@ -1,6 +1,7 @@
 -- This handles the zone drawing and the popups associated with it, but not the Zone Manager window.
 
 require "HomeInventoryMain"
+require "HomeInventoryInfoPanelUI"
 
 AddHomeInventoryZoneUI = ISPanelJoypad:derive("AddHomeInventoryZoneUI");
 
@@ -39,13 +40,13 @@ function AddHomeInventoryZoneUI:initialise()
     self.cancel:instantiate();
     self:addChild(self.cancel);
 
-    local zoneid = DesignationZoneAnimal.getAllZones():size() + 1;
-    local title = getText("IGUI_DesignationZone_Type_" .. DesignationZoneAnimal.ZONE_TYPE) .. " #" .. zoneid;
+    local zoneid = #HomeInventoryManager:getAllZones() + 1;
+    local title =  "Zone " .. zoneid;
     local found = false;
     while not found do
-        if DesignationZoneAnimal.getZoneByName(title) then
+        if HomeInventoryManager:getZoneByName(title) then
             zoneid = zoneid + 1;
-            title = getText("IGUI_DesignationZone_Type_" .. DesignationZoneAnimal.ZONE_TYPE) .. " #" .. zoneid;
+            title = "Zone " .. zoneid;
         else
             break;
         end
@@ -117,6 +118,8 @@ function AddHomeInventoryZoneUI:onCreateZone(button)
     end
     button.parent.modal.cancel.enable = true;
     button.parent.modal.waitingConfirm = false;
+
+    HomeInventoryManager:refresh()
 end
 
 function AddHomeInventoryZoneUI:addZone()
