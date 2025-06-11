@@ -96,17 +96,47 @@ end
 
 function HomeInventoryManager:getAllItemInfo()
     local itemMap = {}
-    for _, zone in ipairs(self:getAllZones()) do
-        for _, item in ipairs(self:getItemsInZone(zone)) do
-            local name = item:getDisplayName()
-            local container = item:getContainer() and item:getContainer():getType() or "Floor"
-            local key = name .. "|" .. (zone.name or "Unknown") .. "|" .. container
-            if not itemMap[key] then
-                itemMap[key] = {text=name, amount=0, zone=zone.name or "Unknown", inside=container}
+
+    local function processItem(item, zone)
+        local name = item:getDisplayName()
+
+        local container = "Floor"
+        if item:getContainer() then
+            local parentItem = item:getContainer():getContainingItem()
+            if parentItem then
+                container = parentItem:getDisplayName()
+            else
+                container = item:getContainer():getType() -- fallback
             end
-            itemMap[key].amount = itemMap[key].amount + 1
+        end
+        
+        -- Here, the | is used as a delimiter because we don't want to group items by name 
+        -- in case they are in different containers or zones. In other words, we are creating
+        -- a unique string for each combination of name, zone and container.
+        local key = name .. "|" .. (zone.name or "Unknown") .. "|" .. container 
+        if not itemMap[key] then
+            itemMap[key] = {text=name, amount=0, zone=zone.name or "Unknown", inside=container}
+        end
+        itemMap[key].amount = itemMap[key].amount + 1
+
+        -- If item is an ItemContainer, process its contents recursively
+        if item.getCategory and (item:getCategory() == "Container") then
+            local contained = item:getItemContainer():getItems()
+            if contained and contained.size and contained:size() > 0 then
+                for i = 0, contained:size() - 1 do
+                    local subItem = contained:get(i)
+                    processItem(subItem, zone)
+                end
+            end
         end
     end
+
+    for _, zone in ipairs(self:getAllZones()) do
+        for _, item in ipairs(self:getItemsInZone(zone)) do
+            processItem(item, zone)
+        end
+    end
+
     -- Convert map to array for UI
     local grouped = {}
     for _, v in pairs(itemMap) do
