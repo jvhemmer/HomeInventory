@@ -52,7 +52,7 @@ function AddHomeInventoryZoneUI:initialise()
         end
     end
 
-    self.titleEntry = ISLabel:new(10, 10, FONT_HGT_SMALL + 2 * 2, title,1 ,1,1,1,UIFont.NewSmall);
+    self.titleEntry = ISLabel:new(100, 10, FONT_HGT_SMALL + 2 * 2, title,1 ,1,1,1,UIFont.NewSmall);
     self.titleEntry:initialise();
     self.titleEntry:instantiate();
     self:addChild(self.titleEntry);
@@ -224,30 +224,28 @@ end
 
 function AddHomeInventoryZoneUI:prerender()
     local z = UI_BORDER_SPACING+1;
-    local splitPoint = getTextManager():MeasureStringX(UIFont.NewSmall, "") + UI_BORDER_SPACING*2;
+
+    local zoneNameLabelText = "Zone name: "
+    local addZonePopupTitle = "Add Home Zone"
+
+    local splitPoint = getTextManager():MeasureStringX(UIFont.NewSmall, zoneNameLabelText) + UI_BORDER_SPACING*2;
     local x = UI_BORDER_SPACING+1;
     self:drawRect(0, 0, self.width, self.height, self.backgroundColor.a, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b);
     self:drawRectBorder(0, 0, self.width, self.height, self.borderColor.a, self.borderColor.r, self.borderColor.g, self.borderColor.b);
     
     -- self:drawText(getText("IGUI_PvpZone_AddZone"), self.width/2 - (getTextManager():MeasureStringX(UIFont.Medium, getText("IGUI_PvpZone_AddZone")) / 2), z, 1,1,1,1, UIFont.Medium);
-    self:drawText("Add Home Zone", self.width/2 - (getTextManager():MeasureStringX(UIFont.Medium, "Add Home Zone") / 2), z, 1,1,1,1, UIFont.Medium);
+    self:drawText(addZonePopupTitle, self.width/2 - (getTextManager():MeasureStringX(UIFont.Medium, addZonePopupTitle) / 2), z, 1,1,1,1, UIFont.Medium);
 
     z = z + FONT_HGT_MEDIUM + UI_BORDER_SPACING;
 
-    self:drawText("", x, z + 2,1,1,1,1,UIFont.Small);
+    self:drawText(zoneNameLabelText, x, z + 2,1,1,1,1,UIFont.Small);
 
     self.titleEntry:setY(z);
     self.titleEntry:setX(splitPoint);
     z = z + FONT_HGT_SMALL;
 
     local howTo = "Click and drag to designate your home zone."
-    if getJoypadData(self.playerNum) then
-        if self.startingX == nil then
-            howTo = getText("IGUI_DesignationZone_HowToJoypadStart")
-        else
-            howTo = getText("IGUI_DesignationZone_HowToJoypadEnd")
-        end
-    end
+ 
     self:drawText(howTo, x, z + 2,1,1,1,1,UIFont.Small);
     self:setWidth(math.max(self.width, UI_BORDER_SPACING*2 + 2 +getTextManager():MeasureStringX(UIFont.Small, howTo)))
     self.cancel:setX(self.width - self.cancel.width - UI_BORDER_SPACING - 1)
@@ -379,6 +377,7 @@ function AddHomeInventoryZoneUI:onClick(button)
     end
     if button.internal == "CANCEL" then
         self:undisplay();
+        self.player:setSeeDesignationZone(false);
         -- self.parentUI:populateList();
     end
 end

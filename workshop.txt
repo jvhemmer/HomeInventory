@@ -1,0 +1,8 @@
+version=1
+id=3496924086
+title=[B42] Home Inventory (view list of items in your base from anywhere)
+description=Check items in your base as a list even while away
+description=
+description=Designate zones which can be used to further organize your base
+tags=Build 42;Interface;Items
+visibility=private

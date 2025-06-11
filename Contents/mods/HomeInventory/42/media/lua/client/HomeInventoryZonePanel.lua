@@ -73,9 +73,18 @@ function HomeInventoryZonePanel:initialise()
     end
 
     self:populateList()
+
+    -- Show designation zones while this window is open
+    if self.player then
+        self.player:setSeeDesignationZone(true)
+    end
 end
 
 function HomeInventoryZonePanel:close()
+    -- Hide designation zones when this window is closed
+    if self.player then
+        self.player:setSeeDesignationZone(false)
+    end
     self:setVisible(false)
     self:removeFromUIManager()
 end
@@ -90,6 +99,7 @@ function HomeInventoryZonePanel:populateList()
         newZone.title = zone.name
         newZone.size = math.abs(zone.x2 - zone.x1 + 1) * math.abs(zone.y2 - zone.y1 + 1)
         newZone.zone = zone
+        newZone.loaded = HomeInventoryManager:isZoneLoaded(zone) -- Add loaded status
         self.zoneList:addItem(newZone.title, newZone)
     end
 end
@@ -110,6 +120,10 @@ function HomeInventoryZonePanel:drawList(y, item, alt)
     end
 
     self:drawText("Size: " .. item.item.size, self.currentWidth + 20, y + 2, 1, 1, 1, a, self.font)
+    -- Draw Loaded column
+    local loadedText = item.item.loaded and "Updated*" or "Not updated* (showing cached inventory)"
+    self:drawText(loadedText, self.currentWidth + 120, y + 2, 1, 1, 1, a, self.font)
+
     return y + self.itemheight
 end
 
@@ -137,15 +151,10 @@ function HomeInventoryZonePanel:render()
         self.selectedZone = nil
     end
 
-    if not self.zoneList.joypadFocused and self.joypadIndexY == 1 then
-        local x,y,w,h = self.zoneList.x, self.zoneList.y, self.zoneList.width, self.zoneList.height
-        self:drawRectBorderStatic(x, y, w, h, 1.0, 1.0, 1.0, 1.0)
-        self:drawRectBorderStatic(x+1, y+1, w-2, h-2, 1.0, 1.0, 1.0, 1.0)
-    end
-
     local BHC = getCore():getBadHighlitedColor()
-    self:drawText("Home zones are used to mark your base area.", self.addZone.x, self.addZone.y + BUTTON_HGT + 3, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
-    self:drawText("You can add, remove, or rename home zones.", self.addZone.x, self.addZone.y + BUTTON_HGT*2 + 3, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
+    self:drawText("Home zones are used to mark one or more areas of your base; or even your entire base.", self.addZone.x, self.addZone.y + BUTTON_HGT + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
+    self:drawText("*If you are too far from a zone, its inventory will only be ", self.addZone.x, self.addZone.y + BUTTON_HGT*2 + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
+    self:drawText("  updated when you return.", self.addZone.x, self.addZone.y + BUTTON_HGT*3, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
 end
 
 function HomeInventoryZonePanel:onClick(button)
@@ -215,9 +224,6 @@ HomeInventoryZonePanel.toggleZoneUI = function(playerNum)
         end
     end
 end
-
-
-
 
 function HomeInventoryZonePanel:new(x, y, width, height, player)
     x = getCore():getScreenWidth() / 2 - (width / 2)
