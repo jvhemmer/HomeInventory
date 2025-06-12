@@ -41,6 +41,7 @@ end
 function HomeInventoryManager:save()
     local md = ModData.getOrCreate("HomeInventoryZones")
     md.zones = self.zones or {}
+    md.zoneItemCache = self.zoneItemCache or {} -- overwrite ModData's cache
     ModData.transmit("HomeInventoryZones")
 
 end
@@ -48,6 +49,7 @@ end
 function HomeInventoryManager:load()
     local md = ModData.getOrCreate("HomeInventoryZones")
     self.zones = md.zones or {}
+    self.zoneItemCache = md.zoneItemCache or {} -- overwrite local cache
 end
 
 function HomeInventoryManager:getItemsInZone(zone)
@@ -82,10 +84,37 @@ function HomeInventoryManager:getItemsInZone(zone)
         end
         -- If we found items, update the cache and return them
         if #items > 0 then
-            self.zoneItemCache[zoneKey] = items
-            return items
+            -- Apparently, the serializer can't handle objects, only simple types. so the cached items have
+            -- to be saved as str or int, otherwise they won't be loaded with the save.
+            local summary = {} 
+
+            local function cacheItem(item, containerName)
+                table.insert(summary, {
+                    name = item:getName(),
+                    displayName = item:getDisplayName(),
+                    container = containerName or (item:getContainer() and item:getContainer():getType() or "Floor")
+                })
+
+                -- If it's a container, go deeper
+                if item.getCategory and item:getCategory() == "Container" then
+                    local contained = item:getItemContainer():getItems()
+                    if contained and contained.size and contained:size() > 0 then
+                        for i = 0, contained:size() - 1 do
+                            local subItem = contained:get(i)
+                            cacheItem(subItem, item:getDisplayName())
+                        end
+                    end
+                end
+            end
+
+            for _, item in ipairs(items) do
+                cacheItem(item)
+            end
+            self.zoneItemCache[zoneKey] = summary
+            self:save()
+            return items -- still return full items if zone is loaded
         else
-            -- Zone loaded but no items found, use cached items if available
+            -- return cached item *summaries*
             return self.zoneItemCache[zoneKey] or {}
         end
     else
@@ -133,7 +162,16 @@ function HomeInventoryManager:getAllItemInfo()
 
     for _, zone in ipairs(self:getAllZones()) do
         for _, item in ipairs(self:getItemsInZone(zone)) do
-            processItem(item, zone)
+            if item.getDisplayName then
+                processItem(item, zone)
+            elseif item.displayName then
+                -- summary mode (when items are cached)
+                local key = item.displayName .. "|" .. (zone.name or "Unknown") .. "|" .. item.container
+                if not itemMap[key] then
+                    itemMap[key] = {text=item.displayName, amount=0, zone=zone.name or "Unknown", inside=item.container}
+                end
+                itemMap[key].amount = itemMap[key].amount + 1
+            end
         end
     end
 
@@ -179,6 +217,7 @@ function HomeInventoryManager:isAllZonesLoaded()
 end
 
 function HomeInventoryManager:refresh()
+    print(self.zoneItemCache)
     if ISCharacterInfoWindow.instance and ISCharacterInfoWindow.instance.homeInventoryTab then
         ISCharacterInfoWindow.instance.homeInventoryTab:populateList()
     end

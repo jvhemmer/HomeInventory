@@ -1,7 +1,7 @@
 name=[B42] Home Inventory
-id=home_inventory_dev
+id=home_inventory
 author=maraganina
-modversion=1.2.0
+modversion=1.3.0
 versionMin=42.9
 description=Designate zones for your base and view all your items from anywhere.
 poster=poster.png
