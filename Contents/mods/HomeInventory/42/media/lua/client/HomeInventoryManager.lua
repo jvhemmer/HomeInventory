@@ -194,4 +194,22 @@ function HomeInventoryManager:getZoneByName(name)
     return nil
 end
 
+function HomeInventoryManager:isPlayerInZone(playerObj, zone)
+    local x = playerObj:getX()
+    local y = playerObj:getY()
+    local z = playerObj:getZ()
+    return x >= math.min(zone.x1, zone.x2) and x <= math.max(zone.x1, zone.x2)
+       and y >= math.min(zone.y1, zone.y2) and y <= math.max(zone.y1, zone.y2)
+       and z == (zone.z or 0)
+end
+
+function HomeInventoryManager:getZonePlayerIsIn(playerObj)
+    for _, zone in ipairs(self:getAllZones()) do
+        if self:isPlayerInZone(playerObj, zone) then
+            return zone
+        end
+    end
+    return nil
+end
+
 Events.OnInitWorld.Add(function() HomeInventoryManager:load() end)
