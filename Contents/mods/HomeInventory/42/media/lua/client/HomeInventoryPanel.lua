@@ -220,6 +220,7 @@ function HomeInventoryPanel:onManageButtonClick()
             ui:populateList()
         end
     end
+    self:populateList()
 end
 
 function HomeInventoryPanel:onItemMouseDown(item)
