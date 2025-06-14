@@ -100,19 +100,37 @@ function HomeInventoryPanel:create()
     local maxInsideWidth = LIST_WIDTH - COL_ZONE_X - COLUMN_PADDING
     self.itemList:initialise()
     self.itemList:instantiate()
+    self.itemList:setOnMouseDownFunction(self, HomeInventoryPanel.onItemMouseDown)
     self.itemList.itemheight = FONT_HGT_SMALL
     self.itemList.font = UIFont.Small
+
+    -- Overwrite the default doDrawItem function to draw all item info
     self.itemList.doDrawItem = function(self, y, item, alt)
+        -- "item" in here is not a world item, it is a list item
+        if not item.height then item.height = self.itemheight end -- compatibililty
+
+        local itemPadY = self.itemPadY or (item.height - self.fontHgt) / 2
+
+        if self.selected == item.index then
+            self:drawSelection(0, y+itemPadY, self:getWidth(), item.height-1);
+        elseif (self.mouseoverselected == item.index) and self:isMouseOver() and not self:isMouseOverScrollBar() then
+            self:drawMouseOverHighlight(0, y+itemPadY, self:getWidth(), item.height-1);
+        end
+
+        self:drawRectBorder(0, (y)+itemPadY, self:getWidth(), item.height, 0.5, self.borderColor.r, self.borderColor.g, self.borderColor.b);
+
         local name = HITruncateText(item.item.text, self.font, maxNameWidth)
-        local zone = HITruncateText(item.item.zone, self.font, maxZoneWidth)
         local amount = "x" .. tostring(item.item.amount)
+        local zone = HITruncateText(item.item.zone, self.font, maxZoneWidth)
         local inside = HITruncateText(item.item.inside, self.font, maxInsideWidth)
 
-        self:drawText(name, COL_NAME_X, y + 2, 1, 1, 1, 1, self.font)
-        self:drawText(amount, COL_AMOUNT_X, y + 2, 1, 1, 1, 1, self.font)
-        self:drawText(zone, COL_ZONE_X, y + 2, 1, 1, 1, 1, self.font)
-        self:drawText(inside, COL_INSIDE_X, y + 2, 1, 1, 1, 1, self.font)
-        return y + FONT_HGT_SMALL
+        self:drawText(name, COL_NAME_X, (y)+itemPadY, 0.9, 0.9, 0.9, 0.9, self.font);
+        self:drawText(amount, COL_AMOUNT_X, (y)+itemPadY, 0.9, 0.9, 0.9, 0.9, self.font);
+        self:drawText(zone, COL_ZONE_X, (y)+itemPadY, 0.9, 0.9, 0.9, 0.9, self.font);
+        self:drawText(inside, COL_INSIDE_X, (y)+itemPadY, 0.9, 0.9, 0.9, 0.9, self.font);
+
+        y = y + item.height;
+        return y;
     end
 
     -- I removed these elements from the render() function as I can't see why they have
@@ -156,6 +174,9 @@ end
 function HomeInventoryPanel:filterItems()
     local filter = self.searchBar:getText():lower()
     self.itemList:clear()
+
+    -- if #self.items < 1 then return end -- if no items were fetched
+
     for _, v in ipairs(self.items) do
         if filter == "" or v.text:lower():find(filter, 1, true) then
             self.itemList:addItem(v.text, v)
@@ -171,9 +192,10 @@ function HomeInventoryPanel:populateList()
 end
 
 function HomeInventoryPanel:onManageButtonClick()
+    local playerObj = getPlayer()
+    local playerNum = playerObj:getPlayerNum()
+
     if not HomeInventoryZonePanel.instance then
-        local playerObj = getPlayer()
-        local playerNum = playerObj:getPlayerNum()
         local ui = HomeInventoryZonePanel:new(
             getPlayerScreenLeft(playerNum) + 100,
             getPlayerScreenTop(playerNum) + 100,
@@ -184,8 +206,12 @@ function HomeInventoryPanel:onManageButtonClick()
         ui:initialise()
         ui:addToUIManager()
     else
-        HomeInventoryZonePanel.instance:toggleZoneUI()
+        HomeInventoryZonePanel.toggleZoneUI(playerNum)
     end
+end
+
+function HomeInventoryPanel:onItemMouseDown(listBox, row, item)
+    print("Clicked on row", row, "which holds", item)
 end
 
 function HomeInventoryPanel:new(x, y, width, height, playerNum)

@@ -131,10 +131,15 @@ function HomeInventoryManager:getAllItemInfo()
     local function processItem(item, zone)
         local name = item:getDisplayName()
 
-        -- Start assuming the container is "Floor" and try to get the actual container
+        -- Start assuming the container is "-" and try to get the actual container
         local container = "-"
         if item:getContainer() then
-            container = getTextOrNull("IGUI_ContainerTitle_" .. item:getContainer():getType()) or item:getContainer():getType() -- fallback
+            local parentItem = item:getContainer():getContainingItem()
+            if parentItem then
+                container = parentItem:getDisplayName()
+            else
+                container = getTextOrNull("IGUI_ContainerTitle_" .. item:getContainer():getType()) or item:getContainer():getType() -- fallback
+            end
         end
         
         -- Here, the | is used as a delimiter because we don't want to group items by name 
