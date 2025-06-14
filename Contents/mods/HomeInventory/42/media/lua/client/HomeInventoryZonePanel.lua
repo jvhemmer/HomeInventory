@@ -101,9 +101,9 @@ function HomeInventoryZonePanel:populateList()
 
     self.zoneList:clear()
 
-    local zones = HomeInventoryManager:getAllZones()
+    self.zones = HomeInventoryManager:getAllZones()
 
-    for i, zone in ipairs(zones or {}) do
+    for i, zone in ipairs(self.zones or {}) do
         local newZone = {}
         newZone.title = zone.name
         newZone.size = math.abs(zone.x2 - zone.x1 + 1) * math.abs(zone.y2 - zone.y1 + 1)
@@ -118,9 +118,13 @@ function HomeInventoryZonePanel:populateList()
     else
         HomeInventoryPanel.instance:populateList()
     end
+
+    print(self.zoneList)
 end
 
 function HomeInventoryZonePanel:drawList(y, item, alt)
+    
+
     -- This could be a ISScrollingListBox instead
     local a = 0.9
     if not self.currentWidth then self.currentWidth = 0 end
@@ -152,6 +156,17 @@ end
 function HomeInventoryZonePanel:prerender()
     ISCollapsableWindowJoypad.prerender(self)
     -- self:drawText("Home Inventory Zones", self.width/2 - (getTextManager():MeasureStringX(UIFont.NewMedium, "Home Inventory Zones") / 2), z, 1,1,1,1, UIFont.NewMedium)
+
+    -- now highlight every saved zone
+    for _, zone in ipairs(self.zones or HomeInventoryManager:getAllZones()) do
+        addAreaHighlightForPlayer(
+            self.playerNum,
+            zone.x1, zone.y1,
+            zone.x2, zone.y2,
+            zone.z or self.player:getZ(),
+            0.7, 0.35, 0.15, 0.3  -- tweak RGBA as you like
+        )
+    end
 end
 
 function HomeInventoryZonePanel:updateButtons()

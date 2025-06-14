@@ -10,6 +10,12 @@ local FONT_HGT_MEDIUM = getTextManager():getFontHeight(UIFont.NewMedium)
 local UI_BORDER_SPACING = 10
 local BUTTON_HGT = FONT_HGT_SMALL + 6
 
+-- my clors
+local HIZONECOLORR = 0.7
+local HIZONECOLORG = 0.35
+local HIZONECOLORB = 0.15
+local HIZONECOLORA = 0.3
+
 --************************************************************************--
 --** AddHomeInventoryZoneUI:initialise
 --**
@@ -138,7 +144,7 @@ function AddHomeInventoryZoneUI:addZone()
         return;
     end
 
-    if DesignationZoneAnimal.getZoneByName(self.titleEntry.name) then
+    if HomeInventoryManager:getZoneByName(self.titleEntry.name) then
         local modal = ISModalDialog:new(0,0, 350, 150, getText("IGUI_PvpZone_ZoneAlreadyExistTitle"), false, self, self.onZoneWithNameExists);
         modal:initialise()
         modal:addToUIManager()
@@ -172,11 +178,8 @@ function AddHomeInventoryZoneUI:addZone()
         name = self.titleEntry.name or tostring(self.titleEntry:getName() or "HomeZone"),
         x1 = startX, y1 = startY, x2 = endX, y2 = endY, z = luautils.round(self.player:getZ(),0)
     }
-    HomeInventoryManager:addZone(zoneData)
 
-    -- print("Home Inventory Zone created:")
-    -- print("Name: " .. tostring(zoneData.name))
-    -- print("Coords: x1=" .. startX .. ", y1=" .. startY .. ", x2=" .. endX .. ", y2=" .. endY .. ", z=" .. zoneData.z)
+    HomeInventoryManager:addZone(zoneData)
 
     self:reset();
 end
@@ -225,6 +228,17 @@ end
 function AddHomeInventoryZoneUI:prerender()
     local z = UI_BORDER_SPACING+1;
 
+    -- Show in world all saved zones
+    for _, zone in ipairs(self.parentUI.zones or HomeInventoryManager:getAllZones()) do -- getAllZones() just to be safe
+        addAreaHighlightForPlayer(
+            self.playerNum,
+            zone.x1, zone.y1,
+            zone.x2, zone.y2,
+            zone.z or self.player:getZ(),
+            self.zoneColor.r,  self.zoneColor.g, self.zoneColor.b,  self.zoneColor.a
+        )
+    end
+
     local zoneNameLabelText = getText("UI_HomeInventory_ZoneName")
     local addZonePopupTitle = getText("UI_HomeInventory_ZoneAddTitle")
 
@@ -247,7 +261,7 @@ function AddHomeInventoryZoneUI:prerender()
     local howTo = getText("UI_HomeInventory_ZoneAddHowTo")
  
     self:drawText(howTo, x, z + 2,1,1,1,1,UIFont.Small);
-    self:setWidth(math.max(self.width, UI_BORDER_SPACING*2 + 2 +getTextManager():MeasureStringX(UIFont.Small, howTo)))
+    self:setWidth(math.max(self.width, UI_BORDER_SPACING*2 + 2 + getTextManager():MeasureStringX(UIFont.Small, howTo)))
     self.cancel:setX(self.width - self.cancel.width - UI_BORDER_SPACING - 1)
     z = z + FONT_HGT_SMALL + UI_BORDER_SPACING;
 
@@ -335,15 +349,17 @@ function AddHomeInventoryZoneUI:pickSquare(screenX, screenY)
 end
 
 function AddHomeInventoryZoneUI:highlightSquareAtMousePointer()
+    if self.drawingZone then return end
     if (self.playerNum ~= 0) or ((getJoypadData(self.playerNum) ~= nil) and not wasMouseActiveMoreRecentlyThanJoypad()) then return end
     local square,x,y,z = self:pickSquare(getMouseX(), getMouseY())
-    local r,g,b,a = self.zoneColor.r, self.zoneColor.g, self.zoneColor.b, self.zoneColor.a
-    a = 1.0
+    local r,g,b,a = 0.7, 0.35, 0.15, 0.3 -- my colors
+    a = 0.8
     addAreaHighlightForPlayer(self.playerNum, x, y, x + 1, y + 1, z, r, g, b, a)
     return
 end
 
 function AddHomeInventoryZoneUI:highlightSquareAtStartPosition()
+    if self.drawingZone then return end
     if (self.playerNum == 0) and ((getJoypadData(self.playerNum) == nil) or wasMouseActiveMoreRecentlyThanJoypad()) then return end
     local x,y,z = self.joypadWorldX,self.joypadWorldY,self.player:getZ()
     local r,g,b,a = self.zoneColor.r, self.zoneColor.g, self.zoneColor.b, self.zoneColor.a
@@ -377,8 +393,6 @@ function AddHomeInventoryZoneUI:onClick(button)
     end
     if button.internal == "CANCEL" then
         self:undisplay();
-        self.player:setSeeDesignationZone(false);
-        -- self.parentUI:populateList();
     end
 end
 
@@ -447,7 +461,7 @@ function AddHomeInventoryZoneUI:new(x, y, width, height, player)
     end
     o.borderColor = {r=0.4, g=0.4, b=0.4, a=1};
     o.backgroundColor = {r=0, g=0, b=0, a=0.8};
-    o.zoneColor = {r=DesignationZoneAnimal.ZONECOLORR, g=DesignationZoneAnimal.ZONECOLORG, b=DesignationZoneAnimal.ZONECOLORB, a=0.5};
+    o.zoneColor = {r=HIZONECOLORR, g=HIZONECOLORG, b=HIZONECOLORB, a=HIZONECOLORA};
     o.width = width;
     o.height = height;
     o.player = player;
@@ -461,6 +475,5 @@ function AddHomeInventoryZoneUI:new(x, y, width, height, player)
     o.startRenderTile = false;
     AddHomeInventoryZoneUI.instance = o;
     o.buttonBorderColor = {r=0.7, g=0.7, b=0.7, a=0.5};
-    player:setSeeDesignationZone(true);
     return o;
 end
