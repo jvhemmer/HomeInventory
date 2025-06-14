@@ -195,8 +195,11 @@ function HomeInventoryPanel:onManageButtonClick()
     local playerObj = getPlayer()
     local playerNum = playerObj:getPlayerNum()
 
-    if not HomeInventoryZonePanel.instance then
-        local ui = HomeInventoryZonePanel:new(
+    local ui = HomeInventoryZonePanel.instance
+
+    if not ui then
+        -- if it doesn't exist, create
+        ui = HomeInventoryZonePanel:new(
             getPlayerScreenLeft(playerNum) + 100,
             getPlayerScreenTop(playerNum) + 100,
             500,
@@ -206,12 +209,58 @@ function HomeInventoryPanel:onManageButtonClick()
         ui:initialise()
         ui:addToUIManager()
     else
-        HomeInventoryZonePanel.toggleZoneUI(playerNum)
+        -- if it is visible, close it
+        if ui:getIsVisible() then
+            ui:close()
+        else
+            -- if not visible but exists, bring to top
+            ui:setVisible(true)
+            ui:centerOnScreen(playerNum)
+            ui:addToUIManager()
+            ui:populateList()
+        end
     end
 end
 
-function HomeInventoryPanel:onItemMouseDown(listBox, row, item)
-    print("Clicked on row", row, "which holds", item)
+function HomeInventoryPanel:onItemMouseDown(item)
+    if not item then return end
+
+    local row = self.itemList.selected
+
+    local zone = HomeInventoryManager:getZoneByName(item.zone)
+
+    if not zone then return end
+
+    local player = getPlayer()
+
+    local tx = (zone.x1 + zone.x2) / 2
+    local ty = (zone.y1 + zone.y2) / 2
+    local tz = player:getZ()
+
+    local location = {
+        x = tx,
+        y = ty,
+        z = tz
+    }
+
+    function location:getX() return self.x end
+    function location:getY() return self.y end
+    function location:getZ() return self.z end
+ 
+    local walkTo = ISWalkToTimedAction:new( -- defined in media/lua/client/TimedActions/WalkToTimedAction.lua
+        player,
+        location,
+        nil,
+        nil
+    )
+
+    ISTimedActionQueue.add(walkTo)
+
+    -- Debug
+    -- for k, v in pairs(item) do
+    --     print(k .. " " .. v)
+    -- end
+    -- print("Clicked on row ", row, " which holds ", item)
 end
 
 function HomeInventoryPanel:new(x, y, width, height, playerNum)

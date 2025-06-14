@@ -111,9 +111,17 @@ function HomeInventoryZonePanel:populateList()
         newZone.loaded = HomeInventoryManager:isZoneLoaded(zone) -- Add loaded status
         self.zoneList:addItem(newZone.title, newZone)
     end
+
+    -- since I can't figure out how to set the panel as a parent
+    if not HomeInventoryPanel.instance then
+        return
+    else
+        HomeInventoryPanel.instance:populateList()
+    end
 end
 
 function HomeInventoryZonePanel:drawList(y, item, alt)
+    -- This could be a ISScrollingListBox instead
     local a = 0.9
     if not self.currentWidth then self.currentWidth = 0 end
     self:drawRectBorder(0, (y), self:getWidth(), self.itemheight - 1, a, self.borderColor.r, self.borderColor.g, self.borderColor.b)
@@ -143,8 +151,6 @@ end
 
 function HomeInventoryZonePanel:prerender()
     ISCollapsableWindowJoypad.prerender(self)
-    local z = 50
-    local x = 10
     -- self:drawText("Home Inventory Zones", self.width/2 - (getTextManager():MeasureStringX(UIFont.NewMedium, "Home Inventory Zones") / 2), z, 1,1,1,1, UIFont.NewMedium)
 end
 
@@ -167,10 +173,8 @@ function HomeInventoryZonePanel:render()
 
     -- Text definitions in initialise()
     local BHC = getCore():getBadHighlitedColor()
-    -- self:drawText(self.descriptionText, self.addZone.x, self.addZone.y + BUTTON_HGT + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
     self:drawText("*", self.addZone.x, self.addZone.y + BUTTON_HGT*2 + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
     self:drawText(self.zoneUpdateText, self.addZone.x + getTextManager():MeasureStringX(UIFont.Small, "*"), self.addZone.y + BUTTON_HGT*2 + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
-    -- self:drawText("  updated when you return.", self.addZone.x, self.addZone.y + BUTTON_HGT*3, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
 end
 
 function HomeInventoryZonePanel:onClick(button)
@@ -229,6 +233,7 @@ function HomeInventoryZonePanel:onRemoveZone(button)
 end
 
 HomeInventoryZonePanel.toggleZoneUI = function(playerNum)
+    -- This getPlayerZoneUI returns the Animal UI and not the home inventory UI so don't use this function
     local ui = getPlayerZoneUI(playerNum)
     if ui then
         if ui:getIsVisible() then
