@@ -39,6 +39,7 @@ function HomeInventoryManager:removeZone(zone)
 end
 
 function HomeInventoryManager:save()
+    print("HomeInventory: saving zones.")
     local md = ModData.getOrCreate("HomeInventoryZones")
     md.zones = self.zones or {}
     md.zoneItemCache = self.zoneItemCache or {} -- overwrite ModData's cache
@@ -47,6 +48,7 @@ function HomeInventoryManager:save()
 end
 
 function HomeInventoryManager:load()
+    print("HomeInventory: loading zones.")
     local md = ModData.getOrCreate("HomeInventoryZones")
     self.zones = md.zones or {}
     self.zoneItemCache = md.zoneItemCache or {} -- overwrite local cache
@@ -92,7 +94,7 @@ function HomeInventoryManager:getItemsInZone(zone)
                 table.insert(summary, {
                     name = item:getName(),
                     displayName = item:getDisplayName(),
-                    container = containerName or (item:getContainer() and item:getContainer():getType() or "Floor")
+                    container = containerName or (item:getContainer() and item:getContainer():getType() or "-")
                 })
 
                 -- If it's a container, go deeper
@@ -129,20 +131,16 @@ function HomeInventoryManager:getAllItemInfo()
     local function processItem(item, zone)
         local name = item:getDisplayName()
 
-        local container = "Floor"
+        -- Start assuming the container is "Floor" and try to get the actual container
+        local container = "-"
         if item:getContainer() then
-            local parentItem = item:getContainer():getContainingItem()
-            if parentItem then
-                container = parentItem:getDisplayName()
-            else
-                container = item:getContainer():getType() -- fallback
-            end
+            container = getTextOrNull("IGUI_ContainerTitle_" .. item:getContainer():getType()) or item:getContainer():getType() -- fallback
         end
         
         -- Here, the | is used as a delimiter because we don't want to group items by name 
         -- in case they are in different containers or zones. In other words, we are creating
         -- a unique string for each combination of name, zone and container.
-        local key = name .. "|" .. (zone.name or "Unknown") .. "|" .. container 
+        local key = name .. "|" .. (zone.name or "Unknown") .. "|" .. container
         if not itemMap[key] then
             itemMap[key] = {text=name, amount=0, zone=zone.name or "Unknown", inside=container}
         end
@@ -251,4 +249,12 @@ function HomeInventoryManager:getZonePlayerIsIn(playerObj)
     return nil
 end
 
-Events.OnInitWorld.Add(function() HomeInventoryManager:load() end)
+-- Load zones when world initializes
+-- Events.OnInitWorld.Add(function()
+--     HomeInventoryManager:load()
+-- end)
+
+-- Save zones on game save
+Events.OnSave.Add(function()
+    HomeInventoryManager:save()
+end)

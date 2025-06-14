@@ -97,6 +97,8 @@ function HomeInventoryZonePanel:close()
 end
 
 function HomeInventoryZonePanel:populateList()
+    HomeInventoryManager:load()
+
     self.zoneList:clear()
 
     local zones = HomeInventoryManager:getAllZones()
@@ -127,14 +129,14 @@ function HomeInventoryZonePanel:drawList(y, item, alt)
     end
 
     local sizeString = string.format(getText("UI_HomeInventory_ZoneSize"), item.item.size)
-    self:drawText(sizeString, self.currentWidth + 20, y + 2, 1, 1, 1, a, self.font)
+    self:drawText(sizeString, self.currentWidth + 180, y + 2, 1, 1, 1, a, self.font)
 
     -- Draw Loaded column
     local updatedText = getText("UI_HomeInventory_ZoneManagerUpdated")
     local notUpdatedText = getText("UI_HomeInventory_ZoneManagerNotUpdated")
 
     local loadedText = item.item.loaded and updatedText or notUpdatedText
-    self:drawText(loadedText, self.currentWidth + 120, y + 2, 1, 1, 1, a, self.font)
+    self:drawText(loadedText, self.currentWidth + 300, y + 2, 1, 1, 1, a, self.font)
 
     return y + self.itemheight
 end
@@ -165,7 +167,7 @@ function HomeInventoryZonePanel:render()
 
     -- Text definitions in initialise()
     local BHC = getCore():getBadHighlitedColor()
-    self:drawText(self.descriptionText, self.addZone.x, self.addZone.y + BUTTON_HGT + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
+    -- self:drawText(self.descriptionText, self.addZone.x, self.addZone.y + BUTTON_HGT + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
     self:drawText("*", self.addZone.x, self.addZone.y + BUTTON_HGT*2 + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
     self:drawText(self.zoneUpdateText, self.addZone.x + getTextManager():MeasureStringX(UIFont.Small, "*"), self.addZone.y + BUTTON_HGT*2 + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
     -- self:drawText("  updated when you return.", self.addZone.x, self.addZone.y + BUTTON_HGT*3, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
