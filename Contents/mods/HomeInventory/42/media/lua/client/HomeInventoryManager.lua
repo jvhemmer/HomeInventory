@@ -52,6 +52,9 @@ function HomeInventoryManager:load()
     local md = ModData.getOrCreate("HomeInventoryZones")
     self.zones = md.zones or {}
     self.zoneItemCache = md.zoneItemCache or {} -- overwrite local cache
+    if HomeInventoryPanel.instance then
+        HomeInventoryPanel.instance:populateList()
+    end
 end
 
 function HomeInventoryManager:getItemsInZone(zone)
