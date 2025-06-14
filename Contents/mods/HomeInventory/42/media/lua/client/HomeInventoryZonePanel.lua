@@ -156,7 +156,10 @@ end
 function HomeInventoryZonePanel:prerender()
     ISCollapsableWindowJoypad.prerender(self)
     -- self:drawText("Home Inventory Zones", self.width/2 - (getTextManager():MeasureStringX(UIFont.NewMedium, "Home Inventory Zones") / 2), z, 1,1,1,1, UIFont.NewMedium)
+    self:drawZoneAreaOnGround()
+end
 
+function HomeInventoryZonePanel:drawZoneAreaOnGround()
     -- now highlight every saved zone
     for _, zone in ipairs(self.zones or HomeInventoryManager:getAllZones()) do
         addAreaHighlightForPlayer(
@@ -166,6 +169,32 @@ function HomeInventoryZonePanel:prerender()
             zone.z or self.player:getZ(),
             0.7, 0.35, 0.15, 0.3  -- tweak RGBA as you like
         )
+    end
+end
+
+function HomeInventoryZonePanel:drawZoneNameOnGround()
+    
+    if not self:getIsVisible() then return end
+
+    local tm    = getTextManager()
+    local font  = UIFont.Medium
+    local camX  = IsoCamera.getOffX()
+    local camY  = IsoCamera.getOffY()
+
+    for _, zone in ipairs(HomeInventoryManager:getAllZones() or {}) do
+        local cx = (zone.x1 + zone.x2) / 2
+        local cy = (zone.y1 + zone.y2) / 2
+        local floor = zone.z or getPlayer():getZ()
+
+        local rawX = IsoUtils.XToScreen(cx, cy, floor, floor)
+        local rawY = IsoUtils.YToScreen(cx, cy, floor, floor)
+
+        local sx = (rawX - camX)/getCore():getZoom(0) -- accounting for zoom in/out
+        local sy = (rawY - camY)/getCore():getZoom(0)
+
+        local name = zone.name
+        local w    = tm:MeasureStringX(font, name)
+        tm:DrawString(font, sx - w/2, sy, name, 1,1,1,1)
     end
 end
 
@@ -190,6 +219,8 @@ function HomeInventoryZonePanel:render()
     local BHC = getCore():getBadHighlitedColor()
     self:drawText("*", self.addZone.x, self.addZone.y + BUTTON_HGT*2 + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
     self:drawText(self.zoneUpdateText, self.addZone.x + getTextManager():MeasureStringX(UIFont.Small, "*"), self.addZone.y + BUTTON_HGT*2 + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
+
+    self:drawZoneNameOnGround()
 end
 
 function HomeInventoryZonePanel:onClick(button)
