@@ -296,11 +296,11 @@ function AddHomeInventoryZoneUI:prerender()
     local badColor = {r=0.9,g=0.1,b=0.1};
     local widthColor = correctColor;
     local heightColor = correctColor;
-    if width > 40 or width < 2 then
+    if width > 40 or width < 1 then -- originally minimum width was 1
         self.widthCorrect = false;
         widthColor = badColor;
     end
-    if height > 40 or height < 2 then
+    if height > 40 or height < 1 then -- originally minimum height was 1
         self.heightCorrect = false;
         heightColor = badColor;
     end
