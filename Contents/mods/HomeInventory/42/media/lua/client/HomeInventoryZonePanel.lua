@@ -123,8 +123,6 @@ function HomeInventoryZonePanel:populateList()
 end
 
 function HomeInventoryZonePanel:drawList(y, item, alt)
-    
-
     -- This could be a ISScrollingListBox instead
     local a = 0.9
     if not self.currentWidth then self.currentWidth = 0 end
@@ -162,18 +160,19 @@ end
 function HomeInventoryZonePanel:drawZoneAreaOnGround()
     -- now highlight every saved zone
     for _, zone in ipairs(self.zones or HomeInventoryManager:getAllZones()) do
-        addAreaHighlightForPlayer(
-            self.playerNum,
-            zone.x1, zone.y1,
-            zone.x2, zone.y2,
-            zone.z or self.player:getZ(),
-            0.7, 0.35, 0.15, 0.3  -- tweak RGBA as you like
-        )
+        if math.floor(zone.z) == math.floor(self.player:getZ()) then
+            addAreaHighlightForPlayer(
+                self.playerNum,
+                zone.x1, zone.y1,
+                zone.x2, zone.y2,
+                zone.z or self.player:getZ(),
+                0.7, 0.35, 0.15, 0.3  -- tweak RGBA as you like
+            )
+        end
     end
 end
 
 function HomeInventoryZonePanel:drawZoneNameOnGround()
-    
     if not self:getIsVisible() then return end
 
     local tm    = getTextManager()
@@ -182,19 +181,22 @@ function HomeInventoryZonePanel:drawZoneNameOnGround()
     local camY  = IsoCamera.getOffY()
 
     for _, zone in ipairs(HomeInventoryManager:getAllZones() or {}) do
-        local cx = (zone.x1 + zone.x2) / 2
-        local cy = (zone.y1 + zone.y2) / 2
-        local floor = zone.z or getPlayer():getZ()
+        if math.floor(zone.z) == math.floor(self.player:getZ()) then
+            local cx = (zone.x1 + zone.x2) / 2
+            local cy = (zone.y1 + zone.y2) / 2
+            local floor = getPlayer():getZ() or zone.z
+            floor = math.floor(floor)
 
-        local rawX = IsoUtils.XToScreen(cx, cy, floor, floor)
-        local rawY = IsoUtils.YToScreen(cx, cy, floor, floor)
+            local rawX = IsoUtils.XToScreen(cx, cy, floor, floor)
+            local rawY = IsoUtils.YToScreen(cx, cy, floor, floor)
 
-        local sx = (rawX - camX)/getCore():getZoom(0) -- accounting for zoom in/out
-        local sy = (rawY - camY)/getCore():getZoom(0)
+            local sx = (rawX - camX)/getCore():getZoom(0) -- accounting for zoom in/out
+            local sy = (rawY - camY)/getCore():getZoom(0)
 
-        local name = zone.name
-        local w    = tm:MeasureStringX(font, name)
-        tm:DrawString(font, sx - w/2, sy, name, 1,1,1,1)
+            local name = zone.name
+            local w    = tm:MeasureStringX(font, name)
+            tm:DrawString(font, sx - w/2, sy, name, 1,1,1,1)
+        end
     end
 end
 
@@ -203,6 +205,9 @@ end
 
 function HomeInventoryZonePanel:render()
     ISCollapsableWindowJoypad.render(self)
+
+    self:drawZoneNameOnGround()
+
     self:updateButtons()
 
     self.removeZone.enable = false
@@ -219,8 +224,6 @@ function HomeInventoryZonePanel:render()
     local BHC = getCore():getBadHighlitedColor()
     self:drawText("*", self.addZone.x, self.addZone.y + BUTTON_HGT*2 + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
     self:drawText(self.zoneUpdateText, self.addZone.x + getTextManager():MeasureStringX(UIFont.Small, "*"), self.addZone.y + BUTTON_HGT*2 + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
-
-    self:drawZoneNameOnGround()
 end
 
 function HomeInventoryZonePanel:onClick(button)

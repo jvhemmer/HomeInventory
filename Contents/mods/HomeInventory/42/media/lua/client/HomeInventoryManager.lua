@@ -94,10 +94,18 @@ function HomeInventoryManager:getItemsInZone(zone)
             local summary = {} 
 
             local function cacheItem(item, containerName)
+                local container = containerName or "-"
+                if item.container then
+                    local _container = item:getContainer()
+                    if _container and _container.type then
+                        containerName = getTextOrNull("IGUI_ContainerTitle_" .. item:getContainer():getType())
+                    end
+                end
+
                 table.insert(summary, {
                     name = item:getName(),
                     displayName = item:getDisplayName(),
-                    container = containerName or (getTextOrNull("IGUI_ContainerTitle_" .. item:getContainer():getType()) or "-")
+                    container = container
                 })
 
                 -- If it's a container, go deeper
