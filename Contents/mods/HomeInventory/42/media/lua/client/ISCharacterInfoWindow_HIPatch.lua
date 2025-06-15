@@ -18,7 +18,9 @@ function ISCharacterInfoWindow:createChildren(...)
     if self.playerNum == 0 and not self.homeInventoryTab then
         local homeInventoryViewName = getText("UI_HomeInventory_TabName")
 
-        self.homeInventoryView = HomeInventoryPanel:new(0, 8, tabTotalWidth, self.height-8, self.playerNum);
+        local totalWidth = tabTotalWidth or self.panel:getWidth()
+
+        self.homeInventoryView = HomeInventoryPanel:new(0, 8, totalWidth, self.height-8, self.playerNum);
         self.homeInventoryView:initialise()
         self.homeInventoryView.infoText = getTextOrNull("UI_HomeInventory_MainPanelInfowa");
         self.panel:addView(homeInventoryViewName, self.homeInventoryView) -- panel is an ISTabPanel object

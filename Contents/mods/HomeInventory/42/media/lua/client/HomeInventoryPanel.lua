@@ -266,6 +266,10 @@ end
 
 function HomeInventoryPanel:new(x, y, width, height, playerNum)
 	local o = {};
+
+    width  = width  or getCore():getScreenWidth()/4.8 -- fallback to prevent errors
+    height = height or getCore():getScreenHeight()/1.8
+
 	o = ISPanel:new(x, y, width, height);
 	o:noBackground();
 	setmetatable(o, self);
