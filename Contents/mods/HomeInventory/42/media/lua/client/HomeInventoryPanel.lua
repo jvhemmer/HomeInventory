@@ -34,7 +34,7 @@ local SEARCH_YEND   = SEARCH_Y + SEARCH_HEIGHT
 -- Scrolling list dimensions 
 local HDR_PADDING   = 20 -- header padding
 local LIST_X        = 0 -- start at the panel border
-local LIST_Y        = PADDING + SEARCH_Y + SEARCH_HEIGHT + HDR_PADDING
+local LIST_Y        = PADDING + SEARCH_YEND + HDR_PADDING
 local LIST_WIDTH    = FIXED_WIDTH -- end at the panel border (fill)
 local LIST_HEIGHT   = FIXED_HEIGHT - LIST_Y -- fill the rest of the window
 
@@ -132,6 +132,7 @@ function HomeInventoryPanel:create()
         y = y + item.height;
         return y;
     end
+    self:addChild(self.itemList)
 
     -- I removed these elements from the render() function as I can't see why they have
     -- to be redrawn every time. Maybe for debugging?
@@ -150,8 +151,6 @@ function HomeInventoryPanel:create()
     self.itemList:setVisible(true)
     self.itemList:setX(0)
     self.itemList:setY(LIST_Y)
-
-    self:addChild(self.itemList)
 
     self:populateList()
 end
