@@ -32,7 +32,7 @@ local SEARCH_XEND   = SEARCH_X + SEARCH_WIDTH
 local SEARCH_YEND   = SEARCH_Y + SEARCH_HEIGHT
 
 -- Scrolling list dimensions 
-local HDR_PADDING   = 16 -- header padding
+local HDR_PADDING   = 20 -- header padding
 local LIST_X        = 0 -- start at the panel border
 local LIST_Y        = PADDING + SEARCH_Y + SEARCH_HEIGHT + HDR_PADDING
 local LIST_WIDTH    = FIXED_WIDTH -- end at the panel border (fill)
