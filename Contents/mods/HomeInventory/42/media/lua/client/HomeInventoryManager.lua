@@ -97,7 +97,7 @@ function HomeInventoryManager:getItemsInZone(zone)
                 table.insert(summary, {
                     name = item:getName(),
                     displayName = item:getDisplayName(),
-                    container = containerName or (item:getContainer() and item:getContainer():getType() or "-")
+                    container = containerName or (getTextOrNull("IGUI_ContainerTitle_" .. item:getContainer():getType()) or "-")
                 })
 
                 -- If it's a container, go deeper
