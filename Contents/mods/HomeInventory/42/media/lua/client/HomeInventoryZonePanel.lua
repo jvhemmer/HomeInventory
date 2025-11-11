@@ -282,7 +282,8 @@ function HomeInventoryZonePanel:onRemoveZone(button)
 end
 
 HomeInventoryZonePanel.toggleZoneUI = function(playerNum)
-    -- This getPlayerZoneUI returns the Animal UI and not the home inventory UI so don't use this function
+    -- This getPlayerZoneUI returns the Animal UI and not the home inventory UI so don't use this function.
+    -- I'm not deleting this in case for some reason it is needed internally
     local ui = getPlayerZoneUI(playerNum)
     if ui then
         if ui:getIsVisible() then

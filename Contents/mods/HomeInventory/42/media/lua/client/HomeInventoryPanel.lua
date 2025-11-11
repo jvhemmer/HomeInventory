@@ -237,7 +237,7 @@ function HomeInventoryPanel:onItemMouseDown(item)
     local ty = (zone.y1 + zone.y2) / 2
     local tz = player:getZ()
 
-    local location = {
+    local location = { -- hack until I make zones into classes with getters
         x = tx,
         y = ty,
         z = tz
