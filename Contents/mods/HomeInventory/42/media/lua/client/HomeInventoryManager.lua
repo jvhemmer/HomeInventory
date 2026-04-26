@@ -44,7 +44,6 @@ function HomeInventoryManager:save()
     md.zones = self.zones or {}
     md.zoneItemCache = self.zoneItemCache or {} -- overwrite ModData's cache
     ModData.transmit("HomeInventoryZones")
-
 end
 
 function HomeInventoryManager:load()
@@ -91,7 +90,7 @@ function HomeInventoryManager:getItemsInZone(zone)
         if #items > 0 then
             -- Apparently, the serializer can't handle objects, only simple types. so the cached items have
             -- to be saved as str or int, otherwise they won't be loaded with the save.
-            local summary = {} 
+            local summary = {}
 
             local function cacheItem(item, containerName)
                 local container = containerName or "-"
@@ -149,16 +148,17 @@ function HomeInventoryManager:getAllItemInfo()
             if parentItem then
                 container = parentItem:getDisplayName()
             else
-                container = getTextOrNull("IGUI_ContainerTitle_" .. item:getContainer():getType()) or item:getContainer():getType() -- fallback
+                container = getTextOrNull("IGUI_ContainerTitle_" .. item:getContainer():getType()) or
+                item:getContainer():getType()                                                                                       -- fallback
             end
         end
-        
-        -- Here, the | is used as a delimiter because we don't want to group items by name 
+
+        -- Here, the | is used as a delimiter because we don't want to group items by name
         -- in case they are in different containers or zones. In other words, we are creating
         -- a unique string for each combination of name, zone and container.
         local key = name .. "|" .. (zone.name or "Unknown") .. "|" .. container
         if not itemMap[key] then
-            itemMap[key] = {text=name, amount=0, zone=zone.name or "Unknown", inside=container}
+            itemMap[key] = { text = name, amount = 0, zone = zone.name or "Unknown", inside = container }
         end
         itemMap[key].amount = itemMap[key].amount + 1
 
@@ -182,7 +182,8 @@ function HomeInventoryManager:getAllItemInfo()
                 -- summary mode (when items are cached)
                 local key = item.displayName .. "|" .. (zone.name or "Unknown") .. "|" .. item.container
                 if not itemMap[key] then
-                    itemMap[key] = {text=item.displayName, amount=0, zone=zone.name or "Unknown", inside=item.container}
+                    itemMap[key] = { text = item.displayName, amount = 0, zone = zone.name or "Unknown", inside = item
+                    .container }
                 end
                 itemMap[key].amount = itemMap[key].amount + 1
             end
@@ -252,8 +253,8 @@ function HomeInventoryManager:isPlayerInZone(playerObj, zone)
     local y = playerObj:getY()
     local z = playerObj:getZ()
     return x >= math.min(zone.x1, zone.x2) and x <= math.max(zone.x1, zone.x2)
-       and y >= math.min(zone.y1, zone.y2) and y <= math.max(zone.y1, zone.y2)
-       and z == (zone.z or 0)
+        and y >= math.min(zone.y1, zone.y2) and y <= math.max(zone.y1, zone.y2)
+        and z == (zone.z or 0)
 end
 
 function HomeInventoryManager:getZonePlayerIsIn(playerObj)

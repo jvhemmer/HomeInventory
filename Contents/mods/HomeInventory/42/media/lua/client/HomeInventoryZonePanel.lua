@@ -1,7 +1,7 @@
 -- This is the panel that appears when "Manage Zones" is clicked
 
 require "HomeInventoryManager"
-require "AddHomeInventoryZoneUI"
+-- require "AddHomeInventoryZoneUI"
 require "HomeInventoryInfoPanelUI"
 
 HomeInventoryZonePanel = ISCollapsableWindowJoypad:derive("HomeInventoryZonePanel");
