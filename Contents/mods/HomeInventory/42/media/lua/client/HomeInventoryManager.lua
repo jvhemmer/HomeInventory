@@ -197,6 +197,7 @@ function HomeInventoryManager:getAllItemInfo()
     for _, zone in ipairs(self:getAllZones()) do
         for _, item in ipairs(self:getItemsInZone(zone)) do
             if item.getDisplayName then
+                -- only works when zone is loaded
                 processItem(item, zone)
             elseif item.displayName then
                 -- summary mode (when items are cached)
@@ -206,8 +207,7 @@ function HomeInventoryManager:getAllItemInfo()
                         text = item.displayName,
                         amount = 0,
                         zone = zone.name or "Unknown",
-                        inside = item
-                            .container
+                        inside = item.container
                     }
                 end
                 itemMap[key].amount = itemMap[key].amount + 1
@@ -257,9 +257,9 @@ function HomeInventoryManager:isAllZonesLoaded()
 end
 
 function HomeInventoryManager:refresh()
-    print(self.zoneItemCache)
-    if ISCharacterInfoWindow.instance and ISCharacterInfoWindow.instance.homeInventoryTab then
-        ISCharacterInfoWindow.instance.homeInventoryTab:populateList()
+    if ISCharacterInfoWindow.instance
+        and ISCharacterInfoWindow.instance.homeInventoryView then
+        ISCharacterInfoWindow.instance.homeInventoryView:populateList()
     end
 end
 
@@ -299,4 +299,11 @@ end
 -- Save zones on game save
 Events.OnSave.Add(function()
     HomeInventoryManager:save()
+end)
+
+-- Refresh every ten minutes
+Events.EveryTenMinutes.Add(function()
+    print("reloading")
+    -- TODO: check if refresh() is doing what I think it is
+    HomeInventoryManager:refresh()
 end)
