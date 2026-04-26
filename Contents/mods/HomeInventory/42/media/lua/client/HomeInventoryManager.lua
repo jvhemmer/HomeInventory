@@ -138,8 +138,17 @@ end
 function HomeInventoryManager:getAllItemInfo()
     local itemMap = {}
 
+
     local function processItem(item, zone)
         local name = item:getDisplayName()
+
+        local sourceContainer = nil
+        local sourceObject = nil
+
+        if item:getContainer() then
+            sourceContainer = item:getContainer()
+            sourceObject = sourceContainer:getParent()
+        end
 
         -- Start assuming the container is "-" and try to get the actual container
         local container = "-"
@@ -149,7 +158,7 @@ function HomeInventoryManager:getAllItemInfo()
                 container = parentItem:getDisplayName()
             else
                 container = getTextOrNull("IGUI_ContainerTitle_" .. item:getContainer():getType()) or
-                item:getContainer():getType()                                                                                       -- fallback
+                    item:getContainer():getType() -- fallback
             end
         end
 
@@ -158,7 +167,14 @@ function HomeInventoryManager:getAllItemInfo()
         -- a unique string for each combination of name, zone and container.
         local key = name .. "|" .. (zone.name or "Unknown") .. "|" .. container
         if not itemMap[key] then
-            itemMap[key] = { text = name, amount = 0, zone = zone.name or "Unknown", inside = container }
+            itemMap[key] = {
+                text = name,
+                amount = 0,
+                zone = zone.name or "Unknown",
+                inside = container,
+                sourceContainer = sourceContainer,
+                sourceObject = sourceObject,
+            }
         end
         itemMap[key].amount = itemMap[key].amount + 1
 
@@ -182,8 +198,13 @@ function HomeInventoryManager:getAllItemInfo()
                 -- summary mode (when items are cached)
                 local key = item.displayName .. "|" .. (zone.name or "Unknown") .. "|" .. item.container
                 if not itemMap[key] then
-                    itemMap[key] = { text = item.displayName, amount = 0, zone = zone.name or "Unknown", inside = item
-                    .container }
+                    itemMap[key] = {
+                        text = item.displayName,
+                        amount = 0,
+                        zone = zone.name or "Unknown",
+                        inside = item
+                            .container
+                    }
                 end
                 itemMap[key].amount = itemMap[key].amount + 1
             end
