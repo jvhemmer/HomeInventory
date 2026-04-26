@@ -22,7 +22,7 @@ function ISCharacterInfoWindow:createChildren(...)
 
         self.homeInventoryView = HomeInventoryPanel:new(0, 8, totalWidth, self.height-8, self.playerNum);
         self.homeInventoryView:initialise()
-        self.homeInventoryView.infoText = getTextOrNull("UI_HomeInventory_MainPanelInfowa");
+        self.homeInventoryView.infoText = getTextOrNull("UI_HomeInventory_MainPanelInfo");
         self.panel:addView(homeInventoryViewName, self.homeInventoryView) -- panel is an ISTabPanel object
 
         -- Set the correct size before restoring the layout. Currently, ISCharacterScreen:render sets the height/width.
