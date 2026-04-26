@@ -147,7 +147,11 @@ function HomeInventoryManager:getAllItemInfo()
 
         if item:getContainer() then
             sourceContainer = item:getContainer()
-            sourceObject = sourceContainer:getParent()
+            if item:getContainer() then
+                if sourceContainer.getParent then
+                    sourceObject = sourceContainer:getParent()
+                end
+            end
         end
 
         -- Start assuming the container is "-" and try to get the actual container
