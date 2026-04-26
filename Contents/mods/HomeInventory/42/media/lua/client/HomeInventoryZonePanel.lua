@@ -1,7 +1,7 @@
 -- This is the panel that appears when "Manage Zones" is clicked
 
 require "HomeInventoryManager"
-require "HomeInventoryZoneUI"
+require "AddHomeInventoryZoneUI"
 require "HomeInventoryInfoPanelUI"
 
 HomeInventoryZonePanel = ISCollapsableWindowJoypad:derive("HomeInventoryZonePanel");
@@ -18,16 +18,18 @@ function HomeInventoryZonePanel:initialise()
 
     local descriptionWidth = getTextManager():MeasureStringX(UIFont.Small, self.descriptionText)
 
-    self.zoneUpdateText = getTextManager():WrapText(UIFont.Small, getText("UI_HomeInventory_ZoneUpdateHint"), self:getWidth()/2)
+    self.zoneUpdateText = getTextManager():WrapText(UIFont.Small, getText("UI_HomeInventory_ZoneUpdateHint"),
+        self:getWidth() / 2)
     local zoneUpdateWidth = getTextManager():MeasureStringX(UIFont.Small, self.zoneUpdateText)
 
-    local width = UI_BORDER_SPACING*2 + 2 + math.max(
+    local width = UI_BORDER_SPACING * 2 + 2 + math.max(
         descriptionWidth,
         zoneUpdateWidth
     )
     self:setWidth(math.max(width, self.width))
 
-    self.zoneList = ISScrollingListBox:new(UI_BORDER_SPACING+1, self:titleBarHeight() + UI_BORDER_SPACING, self.width - (UI_BORDER_SPACING+1)*2, BUTTON_HGT * 16)
+    self.zoneList = ISScrollingListBox:new(UI_BORDER_SPACING + 1, self:titleBarHeight() + UI_BORDER_SPACING,
+        self.width - (UI_BORDER_SPACING + 1) * 2, BUTTON_HGT * 16)
     self.zoneList:initialise()
     self.zoneList:instantiate()
     self.zoneList.itemheight = BUTTON_HGT
@@ -38,14 +40,16 @@ function HomeInventoryZonePanel:initialise()
     self.zoneList.drawBorder = true
     self:addChild(self.zoneList)
 
-    self.addZone = ISButton:new(self.zoneList.x, self.zoneList.y + self.zoneList.height + UI_BORDER_SPACING, btnWid, BUTTON_HGT, getText("UI_HomeInventory_ZoneAddButton"), self, HomeInventoryZonePanel.onClick)
+    self.addZone = ISButton:new(self.zoneList.x, self.zoneList.y + self.zoneList.height + UI_BORDER_SPACING, btnWid,
+        BUTTON_HGT, getText("UI_HomeInventory_ZoneAddButton"), self, HomeInventoryZonePanel.onClick)
     self.addZone.internal = "ADDZONE"
     self.addZone:initialise()
     self.addZone:instantiate()
     self.addZone.borderColor = self.buttonBorderColor
     self:addChild(self.addZone)
 
-    self.removeZone = ISButton:new(self.width - 1 - btnWid - UI_BORDER_SPACING, self.addZone.y, btnWid, BUTTON_HGT, getText("UI_HomeInventory_ZoneRemoveButton"), self, HomeInventoryZonePanel.onClick)
+    self.removeZone = ISButton:new(self.width - 1 - btnWid - UI_BORDER_SPACING, self.addZone.y, btnWid, BUTTON_HGT,
+        getText("UI_HomeInventory_ZoneRemoveButton"), self, HomeInventoryZonePanel.onClick)
     self.removeZone.internal = "REMOVEZONE"
     self.removeZone:initialise()
     self.removeZone:instantiate()
@@ -53,7 +57,8 @@ function HomeInventoryZonePanel:initialise()
     self:addChild(self.removeZone)
     self.removeZone.enable = false
 
-    self.renameZone = ISButton:new(self.removeZone.x - btnWid - UI_BORDER_SPACING, self.addZone.y, btnWid, BUTTON_HGT, getText("UI_HomeInventory_ZoneRenameButton"), self, HomeInventoryZonePanel.onClick)
+    self.renameZone = ISButton:new(self.removeZone.x - btnWid - UI_BORDER_SPACING, self.addZone.y, btnWid, BUTTON_HGT,
+        getText("UI_HomeInventory_ZoneRenameButton"), self, HomeInventoryZonePanel.onClick)
     self.renameZone.internal = "RENAMEZONE"
     self.renameZone:initialise()
     self.renameZone:instantiate()
@@ -61,7 +66,8 @@ function HomeInventoryZonePanel:initialise()
     self:addChild(self.renameZone)
     self.renameZone.enable = false
 
-    self.closeButton = ISButton:new(self.removeZone.x, self.addZone:getBottom() + BUTTON_HGT*2, btnWid, BUTTON_HGT, getText("UI_HomeInventory_CloseButton"), self, HomeInventoryZonePanel.onClick)
+    self.closeButton = ISButton:new(self.removeZone.x, self.addZone:getBottom() + BUTTON_HGT * 2, btnWid, BUTTON_HGT,
+        getText("UI_HomeInventory_CloseButton"), self, HomeInventoryZonePanel.onClick)
     self.closeButton.internal = "OK"
     self.closeButton:initialise()
     self.closeButton:instantiate()
@@ -126,7 +132,8 @@ function HomeInventoryZonePanel:drawList(y, item, alt)
     -- This could be a ISScrollingListBox instead
     local a = 0.9
     if not self.currentWidth then self.currentWidth = 0 end
-    self:drawRectBorder(0, (y), self:getWidth(), self.itemheight - 1, a, self.borderColor.r, self.borderColor.g, self.borderColor.b)
+    self:drawRectBorder(0, (y), self:getWidth(), self.itemheight - 1, a, self.borderColor.r, self.borderColor.g,
+        self.borderColor.b)
 
     if self.selected == item.index then
         self:drawRect(0, (y), self:getWidth(), self.itemheight - 1, 0.3, 0.7, 0.35, 0.15)
@@ -166,7 +173,7 @@ function HomeInventoryZonePanel:drawZoneAreaOnGround()
                 zone.x1, zone.y1,
                 zone.x2, zone.y2,
                 zone.z or self.player:getZ(),
-                0.7, 0.35, 0.15, 0.3  -- tweak RGBA as you like
+                0.7, 0.35, 0.15, 0.3 -- tweak RGBA as you like
             )
         end
     end
@@ -175,27 +182,27 @@ end
 function HomeInventoryZonePanel:drawZoneNameOnGround()
     if not self:getIsVisible() then return end
 
-    local tm    = getTextManager()
-    local font  = UIFont.Medium
-    local camX  = IsoCamera.getOffX()
-    local camY  = IsoCamera.getOffY()
+    local tm   = getTextManager()
+    local font = UIFont.Medium
+    local camX = IsoCamera.getOffX()
+    local camY = IsoCamera.getOffY()
 
     for _, zone in ipairs(HomeInventoryManager:getAllZones() or {}) do
         if math.floor(zone.z) == math.floor(self.player:getZ()) then
-            local cx = (zone.x1 + zone.x2) / 2
-            local cy = (zone.y1 + zone.y2) / 2
+            local cx    = (zone.x1 + zone.x2) / 2
+            local cy    = (zone.y1 + zone.y2) / 2
             local floor = getPlayer():getZ() or zone.z
-            floor = math.floor(floor)
+            floor       = math.floor(floor)
 
-            local rawX = IsoUtils.XToScreen(cx, cy, floor, floor)
-            local rawY = IsoUtils.YToScreen(cx, cy, floor, floor)
+            local rawX  = IsoUtils.XToScreen(cx, cy, floor, floor)
+            local rawY  = IsoUtils.YToScreen(cx, cy, floor, floor)
 
-            local sx = (rawX - camX)/getCore():getZoom(0) -- accounting for zoom in/out
-            local sy = (rawY - camY)/getCore():getZoom(0)
+            local sx    = (rawX - camX) / getCore():getZoom(0) -- accounting for zoom in/out
+            local sy    = (rawY - camY) / getCore():getZoom(0)
 
-            local name = zone.name
-            local w    = tm:MeasureStringX(font, name)
-            tm:DrawString(font, sx - w/2, sy, name, 1,1,1,1)
+            local name  = zone.name
+            local w     = tm:MeasureStringX(font, name)
+            tm:DrawString(font, sx - w / 2, sy, name, 1, 1, 1, 1)
         end
     end
 end
@@ -222,8 +229,10 @@ function HomeInventoryZonePanel:render()
 
     -- Text definitions in initialise()
     local BHC = getCore():getBadHighlitedColor()
-    self:drawText("*", self.addZone.x, self.addZone.y + BUTTON_HGT*2 + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
-    self:drawText(self.zoneUpdateText, self.addZone.x + getTextManager():MeasureStringX(UIFont.Small, "*"), self.addZone.y + BUTTON_HGT*2 + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
+    self:drawText("*", self.addZone.x, self.addZone.y + BUTTON_HGT * 2 + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1,
+        self.font)
+    self:drawText(self.zoneUpdateText, self.addZone.x + getTextManager():MeasureStringX(UIFont.Small, "*"),
+        self.addZone.y + BUTTON_HGT * 2 + 9, BHC:getR(), BHC:getG(), BHC:getB(), 1, self.font)
 end
 
 function HomeInventoryZonePanel:onClick(button)
@@ -233,7 +242,7 @@ function HomeInventoryZonePanel:onClick(button)
     if button.internal == "REMOVEZONE" then
         if self.selectedZone then
             local removeText = string.format(getText("UI_HomeInventory_ZoneRemove"), self.selectedZone.name)
-            local modal = ISModalDialog:new(0,0, 350, 150, removeText, true, nil, HomeInventoryZonePanel.onRemoveZone)
+            local modal = ISModalDialog:new(0, 0, 350, 150, removeText, true, nil, HomeInventoryZonePanel.onRemoveZone)
             modal:initialise()
             modal:addToUIManager()
             modal.ui = self
@@ -244,14 +253,16 @@ function HomeInventoryZonePanel:onClick(button)
     if button.internal == "RENAMEZONE" then
         if self.selectedZone then
             local renameText = string.format(getText("UI_HomeInventory_ZoneRename"), self.selectedZone.name)
-            local modal = ISTextBox:new(0, 0, 280, 180, renameText, self.selectedZone.name, self, HomeInventoryZonePanel.onRenameZoneClick)
+            local modal = ISTextBox:new(0, 0, 280, 180, renameText, self.selectedZone.name, self,
+                HomeInventoryZonePanel.onRenameZoneClick)
             modal:initialise()
             modal:addToUIManager()
             modal.maxChars = 30
         end
     end
     if button.internal == "ADDZONE" then
-        local ui = AddHomeInventoryZoneUI:new(getPlayerScreenLeft(self.playerNum)+10, getPlayerScreenTop(self.playerNum)+10, 320, FONT_HGT_MEDIUM*8, self.player)
+        local ui = AddHomeInventoryZoneUI:new(getPlayerScreenLeft(self.playerNum) + 10,
+            getPlayerScreenTop(self.playerNum) + 10, 320, FONT_HGT_MEDIUM * 8, self.player)
         ui:initialise()
         ui:addToUIManager()
         ui.parentUI = self
@@ -271,7 +282,6 @@ function HomeInventoryZonePanel:onRenameZoneClick(button, panel)
 end
 
 function HomeInventoryZonePanel:onRemoveZone(button)
-
     local zone = button.parent.selectedZone
 
     if button.internal == "YES" then
@@ -302,8 +312,8 @@ function HomeInventoryZonePanel:new(x, y, width, height, player)
     x = getCore():getScreenWidth() / 2 - (width / 2)
     y = getCore():getScreenHeight() / 2 - (height / 2)
     local o = ISCollapsableWindowJoypad.new(self, x, y, width, height)
-    o.borderColor = {r=0.4, g=0.4, b=0.4, a=1}
-    o.backgroundColor = {r=0, g=0, b=0, a=0.8}
+    o.borderColor = { r = 0.4, g = 0.4, b = 0.4, a = 1 }
+    o.backgroundColor = { r = 0, g = 0, b = 0, a = 0.8 }
     o.width = width
     o.playerNum = player:getPlayerNum()
     o.height = height
@@ -311,7 +321,7 @@ function HomeInventoryZonePanel:new(x, y, width, height, player)
     o:setResizable(false)
     o.moveWithMouse = true
     HomeInventoryZonePanel.instance = o
-    o.buttonBorderColor = {r=0.7, g=0.7, b=0.7, a=0.5}
+    o.buttonBorderColor = { r = 0.7, g = 0.7, b = 0.7, a = 0.5 }
     o.listTakesFocus = false
     o:setTitle(getText("UI_HomeInventory_HomeInventoryTitle"))
     return o
