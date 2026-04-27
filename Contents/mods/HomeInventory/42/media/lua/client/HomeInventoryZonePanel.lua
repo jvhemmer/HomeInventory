@@ -145,7 +145,7 @@ function HomeInventoryZonePanel:drawList(y, item, alt)
         self.currentWidth = newWidth
     end
 
-    local sizeString = string.format(getText("UI_HomeInventory_ZoneSize"), item.item.size)
+    local sizeString = getText("UI_HomeInventory_ZoneSize", item.item.size)
     self:drawText(sizeString, self.currentWidth + 180, y + 2, 1, 1, 1, a, self.font)
 
     -- Draw Loaded column
@@ -241,7 +241,7 @@ function HomeInventoryZonePanel:onClick(button)
     end
     if button.internal == "REMOVEZONE" then
         if self.selectedZone then
-            local removeText = string.format(getText("UI_HomeInventory_ZoneRemove"), self.selectedZone.name)
+            local removeText = getText("UI_HomeInventory_ZoneRemove", self.selectedZone.name)
             local modal = ISModalDialog:new(0, 0, 350, 150, removeText, true, nil, HomeInventoryZonePanel.onRemoveZone)
             modal:initialise()
             modal:addToUIManager()
@@ -252,7 +252,7 @@ function HomeInventoryZonePanel:onClick(button)
     end
     if button.internal == "RENAMEZONE" then
         if self.selectedZone then
-            local renameText = string.format(getText("UI_HomeInventory_ZoneRename"), self.selectedZone.name)
+            local renameText = getText("UI_HomeInventory_ZoneRename", self.selectedZone.name)
             local modal = ISTextBox:new(0, 0, 280, 180, renameText, self.selectedZone.name, self,
                 HomeInventoryZonePanel.onRenameZoneClick)
             modal:initialise()

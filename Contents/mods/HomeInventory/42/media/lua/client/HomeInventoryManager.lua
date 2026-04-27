@@ -39,7 +39,7 @@ function HomeInventoryManager:removeZone(zone)
 end
 
 function HomeInventoryManager:save()
-    print("HomeInventory: saving zones.")
+    print("Home Inventory: saving zones.")
     local md = ModData.getOrCreate("HomeInventoryZones")
     md.zones = self.zones or {}
     md.zoneItemCache = self.zoneItemCache or {} -- overwrite ModData's cache
@@ -47,7 +47,7 @@ function HomeInventoryManager:save()
 end
 
 function HomeInventoryManager:load()
-    print("HomeInventory: loading zones.")
+    print("Home Inventory: loading zones.")
     local md = ModData.getOrCreate("HomeInventoryZones")
     self.zones = md.zones or {}
     self.zoneItemCache = md.zoneItemCache or {} -- overwrite local cache
@@ -303,7 +303,6 @@ end)
 
 -- Refresh every ten minutes
 Events.EveryTenMinutes.Add(function()
-    print("reloading")
-    -- TODO: check if refresh() is doing what I think it is
+    print("Home Inventory: Refreshing after 10 min.")
     HomeInventoryManager:refresh()
 end)
